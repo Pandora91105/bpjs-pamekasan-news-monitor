@@ -1,0 +1,185 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Analisis Berita - BPJS Pamekasan</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: Arial, sans-serif; }
+        body { background: #F5F5F4; }
+        .layout { display: flex; min-height: 100vh; }
+
+        .sidebar { width: 180px; background: #00A651; flex-shrink: 0; padding: 20px 0; display: flex; flex-direction: column; gap: 4px; }
+        .sidebar a { display: flex; align-items: center; gap: 10px; padding: 10px 20px; color: #ffffff; text-decoration: none; font-size: 14px; }
+        .sidebar a.inactive { color: #D9F0E3; }
+        .sidebar a:hover { background: rgba(255,255,255,0.1); }
+
+        .main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+
+        .header { background: #FFFFFF; border-bottom: 1px solid #E5E3DC; padding: 14px 24px; display: flex; align-items: center; justify-content: space-between; }
+        .header-left { display: flex; align-items: center; gap: 10px; }
+        .logo-badge { width: 34px; height: 34px; border-radius: 50%; background: #00A651; display: flex; align-items: center; justify-content: center; color: white; font-size: 16px; }
+        .header-title { font-weight: 500; font-size: 14px; margin: 0; }
+        .header-subtitle { font-size: 11px; color: #6B6B6B; margin: 0; }
+        .header-right { display: flex; align-items: center; gap: 16px; }
+        .header-right a { font-size: 12px; color: #1B5FAA; text-decoration: none; }
+
+        .content { padding: 24px; overflow-y: auto; overflow-x: hidden; }
+
+        .stats-row { display: flex; gap: 14px; margin-bottom: 24px; }
+        .stat-card { flex: 1; background: #FFFFFF; border: 1px solid #E5E3DC; border-radius: 10px; padding: 16px; text-decoration: none; color: inherit; cursor: pointer; }
+        .stat-card.active { border: 2px solid #00A651; }
+        .stat-label { font-size: 12px; color: #6B6B6B; margin-bottom: 6px; }
+        .stat-value { font-size: 24px; font-weight: 600; }
+        .stat-positif .stat-value { color: #3B6D11; }
+        .stat-netral .stat-value { color: #6B6B6B; }
+        .stat-negatif .stat-value { color: #B3261E; }
+
+        .chart-card { background: #FFFFFF; border: 1px solid #E5E3DC; border-radius: 10px; padding: 20px; margin-bottom: 24px; display: flex; align-items: center; gap: 24px; }
+        .chart-box { width: 160px; height: 160px; flex-shrink: 0; }
+        .chart-info-title { font-size: 14px; font-weight: 500; margin-bottom: 12px; }
+        .legend-list { display: flex; flex-direction: column; gap: 8px; font-size: 13px; }
+        .legend-item { display: flex; align-items: center; gap: 8px; }
+        .legend-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+        .attention-panel { flex: 1; border-left: 1px solid #E5E3DC; padding-left: 24px; }
+        .attention-title { font-size: 13px; font-weight: 500; margin-bottom: 6px; line-height: 1.4; }
+        .attention-meta { font-size: 12px; color: #9B9990; margin-bottom: 8px; }
+        .attention-link { font-size: 12px; color: #B3261E; text-decoration: none; font-weight: 500; }
+        .attention-empty { font-size: 13px; color: #9B9990; line-height: 1.5; }
+
+        .news-item { background: #FFFFFF; border: 1px solid #E5E3DC; border-radius: 10px; padding: 14px 16px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+        .news-title { font-size: 14px; font-weight: 500; margin-bottom: 6px; }
+        .news-meta { font-size: 12px; color: #9B9990; }
+        .news-meta a { color: #1B5FAA; text-decoration: none; margin-left: 8px; }
+
+        .sentiment-tag { font-size: 11px; padding: 3px 10px; border-radius: 6px; font-weight: 500; white-space: nowrap; }
+        .tag-positif { background: #EAF3DE; color: #3B6D11; }
+        .tag-netral { background: #EFEFEC; color: #6B6B6B; }
+        .tag-negatif { background: #FDECEA; color: #B3261E; }
+
+        .empty-state { background: #FFFFFF; border: 1px dashed #D6D3C9; border-radius: 10px; padding: 30px; text-align: center; color: #9B9990; font-size: 13px; }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+</head>
+<body>
+    <div class="layout">
+        <div class="sidebar">
+            <a href="{% url 'dashboard' %}" class="inactive">&#127968; Home</a>
+            <a href="{% url 'review' %}" class="inactive">&#128193; Berita</a>
+            <a href="{% url 'analisis' %}">&#128202; Analisis</a>
+        </div>
+
+        <div class="main">
+            <div class="header">
+                <div class="header-left">
+                    <div class="logo-badge">&#128737;</div>
+                    <div>
+                        <p class="header-title">BPJS Kesehatan</p>
+                        <p class="header-subtitle">Badan Penyelenggara Jaminan Sosial</p>
+                    </div>
+                </div>
+                <div class="header-right">
+                    <a href="{% url 'review' %}">Review Berita</a>
+                    <a href="{% url 'logout' %}">Logout</a>
+                </div>
+            </div>
+
+            <div class="content">
+                <div class="stats-row">
+                    <a href="?sentiment=semua" class="stat-card {% if filter_aktif == 'semua' %}active{% endif %}">
+                        <div class="stat-label">Semua Berita</div>
+                        <div class="stat-value">{{ total_semua }}</div>
+                    </a>
+                    <a href="?sentiment=positif" class="stat-card stat-positif {% if filter_aktif == 'positif' %}active{% endif %}">
+                        <div class="stat-label">Positif</div>
+                        <div class="stat-value">{{ total_positif }}</div>
+                    </a>
+                    <a href="?sentiment=netral" class="stat-card stat-netral {% if filter_aktif == 'netral' %}active{% endif %}">
+                        <div class="stat-label">Netral</div>
+                        <div class="stat-value">{{ total_netral }}</div>
+                    </a>
+                    <a href="?sentiment=negatif" class="stat-card stat-negatif {% if filter_aktif == 'negatif' %}active{% endif %}">
+                        <div class="stat-label">Negatif</div>
+                        <div class="stat-value">{{ total_negatif }}</div>
+                    </a>
+                </div>
+
+                <div class="chart-card">
+                    <div class="chart-box">
+                        <canvas id="sentimentChart"></canvas>
+                    </div>
+
+                    <div style="flex: 1;">
+                        <p class="chart-info-title">Distribusi Sentimen Berita</p>
+                        <div class="legend-list">
+                            <div class="legend-item">
+                                <span class="legend-dot" style="background: #3B6D11;"></span>
+                                Positif — {{ total_positif }} berita ({{ persen_positif }}%)
+                            </div>
+                            <div class="legend-item">
+                                <span class="legend-dot" style="background: #9B9990;"></span>
+                                Netral — {{ total_netral }} berita ({{ persen_netral }}%)
+                            </div>
+                            <div class="legend-item">
+                                <span class="legend-dot" style="background: #B3261E;"></span>
+                                Negatif — {{ total_negatif }} berita ({{ persen_negatif }}%)
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="attention-panel">
+                        <p class="chart-info-title">Perlu Perhatian</p>
+                        {% if berita_negatif_terbaru %}
+                            <p class="attention-title">{{ berita_negatif_terbaru.title }}</p>
+                            <p class="attention-meta">{{ berita_negatif_terbaru.source }} &middot; {{ berita_negatif_terbaru.published_date|date:"d M Y" }}</p>
+                            <a href="{{ berita_negatif_terbaru.url }}" target="_blank" class="attention-link">Baca berita ini &#8599;</a>
+                        {% else %}
+                            <p class="attention-empty">Tidak ada berita bersentimen negatif saat ini. Kondisi pemberitaan cukup baik.</p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                {% if news_list %}
+                    {% for news in news_list %}
+                    <div class="news-item">
+                        <div>
+                            <div class="news-title">{{ news.title }}</div>
+                            <div class="news-meta">
+                                {{ news.source }} &middot; {{ news.published_date|date:"d M Y" }}
+                                <a href="{{ news.url }}" target="_blank">Buka artikel &#8599;</a>
+                            </div>
+                        </div>
+                        <span class="sentiment-tag tag-{{ news.sentiment }}">{{ news.get_sentiment_display }}</span>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="empty-state">Tidak ada berita untuk filter ini.</div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const ctx = document.getElementById('sentimentChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Positif', 'Netral', 'Negatif'],
+                datasets: [{
+                    data: [{{ total_positif }}, {{ total_netral }}, {{ total_negatif }}],
+                    backgroundColor: ['#3B6D11', '#9B9990', '#B3261E'],
+                    borderWidth: 0,
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '65%',
+                plugins: {
+                    legend: { display: false }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

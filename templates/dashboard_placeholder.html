@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard</title>
+</head>
+<body style="font-family: Arial; padding: 40px;">
+    <h1>Login berhasil!</h1>
+    <p>Selamat datang, {{ user.username }}.</p>
+    <p><a href="{% url 'review' %}">Buka halaman Review Berita</a></p>
+    <a href="{% url 'logout' %}">Logout</a>
+</body>
+</html>

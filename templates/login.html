@@ -1,0 +1,120 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Login - Monitoring Berita BPJS Pamekasan</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: Arial, sans-serif; }
+        body {
+            background: #F5F5F4;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .card {
+            width: 360px;
+            background: #FFFFFF;
+            border: 1px solid #E5E3DC;
+            border-radius: 12px;
+            padding: 32px 28px;
+        }
+        .icon-badge {
+            width: 56px;
+            height: 56px;
+            background: #00A651;
+            border-radius: 12px;
+            margin: 0 auto 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 28px;
+        }
+        h1 {
+            font-size: 16px;
+            font-weight: 500;
+            text-align: center;
+            margin-bottom: 4px;
+        }
+        .subtitle {
+            font-size: 13px;
+            color: #6B6B6B;
+            text-align: center;
+            margin-bottom: 28px;
+        }
+        label {
+            font-size: 13px;
+            color: #6B6B6B;
+            display: block;
+            margin-bottom: 6px;
+        }
+        input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #D6D3C9;
+            border-radius: 8px;
+            font-size: 14px;
+            margin-bottom: 14px;
+        }
+        button {
+            width: 100%;
+            background: #00A651;
+            color: white;
+            border: none;
+            padding: 11px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            margin-top: 6px;
+        }
+        button:hover { background: #008a44; }
+        .footer-note {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 20px;
+            padding-top: 16px;
+            border-top: 1px solid #E5E3DC;
+            font-size: 11px;
+            color: #9B9990;
+        }
+        .error {
+            background: #FDECEA;
+            color: #B3261E;
+            font-size: 12px;
+            padding: 8px 12px;
+            border-radius: 6px;
+            margin-bottom: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <div class="icon-badge">&#128737;</div>
+        <h1>Monitoring Berita BPJS Madura</h1>
+        <p class="subtitle">BPJS Kesehatan Cabang Pamekasan</p>
+
+        {% if form.errors %}
+        <div class="error">Username atau kata sandi salah.</div>
+        {% endif %}
+
+        <form method="post">
+            {% csrf_token %}
+            <label for="id_username">Username</label>
+            <input type="text" name="username" id="id_username" placeholder="Masukkan username" required>
+
+            <label for="id_password">Kata Sandi</label>
+            <input type="password" name="password" id="id_password" placeholder="Masukkan kata sandi" required>
+
+            <button type="submit">Masuk</button>
+        </form>
+
+        <div class="footer-note">
+            🔒 Akses terbatas untuk pengguna resmi yang berwenang
+        </div>
+    </div>
+</body>
+</html>
