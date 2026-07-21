@@ -65,7 +65,6 @@
     <div class="layout">
         <div class="sidebar">
             <a href="{% url 'dashboard' %}" class="inactive">&#127968; Home</a>
-            <a href="{% url 'review' %}" class="inactive">&#128193; Berita</a>
             <a href="{% url 'analisis' %}">&#128202; Analisis</a>
         </div>
 
@@ -79,7 +78,6 @@
                     </div>
                 </div>
                 <div class="header-right">
-                    <a href="{% url 'review' %}">Review Berita</a>
                     <a href="{% url 'logout' %}">Logout</a>
                 </div>
             </div>
@@ -93,10 +91,6 @@
                     <a href="?sentiment=positif" class="stat-card stat-positif {% if filter_aktif == 'positif' %}active{% endif %}">
                         <div class="stat-label">Positif</div>
                         <div class="stat-value">{{ total_positif }}</div>
-                    </a>
-                    <a href="?sentiment=netral" class="stat-card stat-netral {% if filter_aktif == 'netral' %}active{% endif %}">
-                        <div class="stat-label">Netral</div>
-                        <div class="stat-value">{{ total_netral }}</div>
                     </a>
                     <a href="?sentiment=negatif" class="stat-card stat-negatif {% if filter_aktif == 'negatif' %}active{% endif %}">
                         <div class="stat-label">Negatif</div>
@@ -115,10 +109,6 @@
                             <div class="legend-item">
                                 <span class="legend-dot" style="background: #3B6D11;"></span>
                                 Positif — {{ total_positif }} berita ({{ persen_positif }}%)
-                            </div>
-                            <div class="legend-item">
-                                <span class="legend-dot" style="background: #9B9990;"></span>
-                                Netral — {{ total_netral }} berita ({{ persen_netral }}%)
                             </div>
                             <div class="legend-item">
                                 <span class="legend-dot" style="background: #B3261E;"></span>
@@ -164,12 +154,10 @@
         new Chart(ctx, {
             type: 'doughnut',
             data: {
-                labels: ['Positif', 'Netral', 'Negatif'],
+               labels: ['Positif', 'Negatif'],
                 datasets: [{
-                    data: [{{ total_positif }}, {{ total_netral }}, {{ total_negatif }}],
-                    backgroundColor: ['#3B6D11', '#9B9990', '#B3261E'],
-                    borderWidth: 0,
-                }]
+                    data: [{{ total_positif }}, {{ total_negatif }}],
+                    backgroundColor: ['#3B6D11', '#B3261E'],
             },
             options: {
                 responsive: true,

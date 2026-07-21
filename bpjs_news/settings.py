@@ -79,12 +79,22 @@ WSGI_APPLICATION = 'bpjs_news.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': '/home/db.sqlite3',
+if os.getenv('WEBSITE_HOSTNAME'):
+    # Jalan di Azure App Service — pakai folder persisten /home
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': '/home/db.sqlite3',
+        }
     }
-}
+else:
+    # Jalan di laptop lokal — pakai folder project seperti biasa
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
 
 
 # Password validation

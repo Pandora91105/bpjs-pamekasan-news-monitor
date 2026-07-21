@@ -9,7 +9,6 @@ class News(models.Model):
 
     SENTIMENT_CHOICES = [
         ('positif', 'Positif'),
-        ('netral', 'Netral'),
         ('negatif', 'Negatif'),
     ]
 

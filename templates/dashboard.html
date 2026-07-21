@@ -95,7 +95,6 @@
     <div class="layout">
         <div class="sidebar">
             <a href="{% url 'dashboard' %}">&#127968; Home</a>
-            <a href="{% url 'review' %}" class="inactive">&#128193; Berita</a>
             <a href="{% url 'analisis' %}" class="inactive">&#128202; Analisis</a>
         </div>
 
@@ -109,7 +108,6 @@
                     </div>
                 </div>
                 <div class="header-right">
-                    <a href="{% url 'review' %}">Review Berita</a>
                     <div class="avatar">{{ user.username|slice:":2"|upper }}</div>
                     <form method="post" action="{% url 'logout' %}" style="display: inline; margin: 0;">
                         {% csrf_token %}
