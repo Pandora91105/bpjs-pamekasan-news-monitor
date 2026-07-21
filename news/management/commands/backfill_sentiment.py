@@ -46,12 +46,14 @@ class Command(BaseCommand):
 
         prompt = f"""Kamu adalah asisten yang menilai sentimen berita terkait BPJS Kesehatan Cabang Pamekasan.
 
-Untuk setiap berita, tentukan sentimen: "positif" (prestasi, apresiasi, program bermanfaat), "netral" (informasi umum, imbauan), atau "negatif" (keluhan, masalah, kritik, kegagalan layanan).
+Untuk setiap berita, tentukan sentimen, pilih salah satu:
+- "positif": prestasi, kolaborasi, sinergi, program bermanfaat, apresiasi, informasi netral/imbauan yang tidak mengandung kritik.
+- "negatif": tunggakan, tidak dibayar, hutang, keluhan, masalah, kegagalan layanan, kritik.
 
 Daftar berita:
 {items_text}
 
-Jawab HANYA dalam format JSON array berisi string sentimen sesuai urutan nomor di atas, tanpa teks tambahan. Contoh untuk 2 berita: ["negatif", "netral"]"""
+Jawab HANYA dalam format JSON array berisi string sentimen ("positif" atau "negatif") sesuai urutan nomor di atas, tanpa teks tambahan. Contoh untuk 2 berita: ["negatif", "positif"]"""
 
         for attempt in range(max_retries):
             try:

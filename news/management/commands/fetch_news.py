@@ -96,7 +96,10 @@ class Command(BaseCommand):
 
                 Untuk setiap berita di bawah ini, tentukan DUA hal:
                 1. "relevan": apakah berita ini membahas BPJS KESEHATAN (bukan BPJS Ketenagakerjaan) yang berkaitan dengan wilayah Pamekasan secara spesifik (layanan, klaim, kepesertaan, kebijakan, keluhan, faskes, dll di Pamekasan). true/false.
-                2. "sentimen": nada pemberitaan terhadap BPJS Kesehatan Pamekasan. Pilih salah satu: "positif" (prestasi, apresiasi, program bermanfaat, informasi netral/imbauan yang tidak mengandung kritik) atau "negatif" (keluhan, masalah, kegagalan layanan, kritik). Jika tidak relevan, isi sentimen dengan "positif".
+                2. "sentimen": nada pemberitaan terhadap BPJS Kesehatan Pamekasan. Pilih salah satu:
+                    - "positif": prestasi, kolaborasi, sinergi, program bermanfaat, apresiasi, informasi netral/imbauan yang tidak mengandung kritik.
+                    - "negatif": tunggakan, tidak dibayar, hutang, keluhan, masalah, kegagalan layanan, kritik.
+                    Jika tidak relevan, isi sentimen dengan "positif".
 
                 Daftar berita:
                 {items_text}
