@@ -1,6 +1,7 @@
 import os
 import json
 import time
+from django.db.models import Q
 from django.core.management.base import BaseCommand
 from dotenv import load_dotenv
 from google import genai
@@ -16,7 +17,7 @@ class Command(BaseCommand):
     help = 'Analisis sentimen untuk berita yang belum punya label sentimen'
 
     def handle(self, *args, **options):
-        news_list = list(News.objects.filter(sentiment__isnull=True))
+        news_list = list(News.objects.filter(Q(sentiment__isnull=True) | Q(sentiment='netral')))
         self.stdout.write(f"Ditemukan {len(news_list)} berita tanpa sentimen. Memproses...\n")
 
         if not news_list:
