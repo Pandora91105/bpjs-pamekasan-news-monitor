@@ -7,8 +7,12 @@ from datetime import datetime, timedelta
 from django.utils import timezone
 from django.db.models import Count, Q
 from django.db.models.functions import TruncMonth
+from django.core.management import call_command
+from django.http import HttpResponse
+from django.views import View
+import threading
 import json
-import calendar
+import calendar     
 
 class CustomLoginView(LoginView):
     template_name = 'login.html'
@@ -122,3 +126,19 @@ class AnalisisView(LoginRequiredMixin, TemplateView):
         context['chart_negatif'] = json.dumps(chart_negatif)
 
         return context
+
+class TriggerFetchView(View):
+    def get(self, request):
+        token = request.GET.get('token')
+        expected_token = os.getenv('FETCH_SECRET_TOKEN')
+
+        if not expected_token or token != expected_token:
+            return HttpResponse('Unauthorized', status=401)
+
+        def run_fetch():
+            call_command('fetch_news')
+
+        thread = threading.Thread(target=run_fetch)
+        thread.start()
+
+        return HttpResponse('Fetch dimulai di background.')

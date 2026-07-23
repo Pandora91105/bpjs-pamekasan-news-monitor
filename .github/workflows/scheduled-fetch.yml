@@ -1,0 +1,14 @@
+name: Scheduled Fetch News
+
+on:
+  schedule:
+    - cron: '0 */3 * * *'
+  workflow_dispatch:
+
+jobs:
+  trigger-fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger fetch_news endpoint
+        run: |
+          curl -f "https://bpjs-pamekasan-news-g4evgwg7drcybdgn.southeastasia-01.azurewebsites.net/trigger-fetch/?token=${{ secrets.FETCH_SECRET_TOKEN }}"

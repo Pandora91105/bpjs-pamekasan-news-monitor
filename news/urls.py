@@ -7,4 +7,5 @@ urlpatterns = [
     path('logout/', LogoutView.as_view(), name='logout'),
     path('', views.DashboardView.as_view(), name='dashboard'),
     path('analisis/', views.AnalisisView.as_view(), name='analisis'),
+    path('trigger-fetch/', views.TriggerFetchView.as_view(), name='trigger_fetch'),
 ]
