@@ -1,279 +1,345 @@
 {% load static %}
+
 <!DOCTYPE html>
+
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <link rel="icon" type="image/png" href="{% static 'img/favicon.png' %}">
-    <title>Dashboard - Monitoring Berita BPJS Pamekasan</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard - Monitoring Berita BPJS</title>
 
-    <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: Arial, sans-serif; }
-        body { background: #F5F5F4; }
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 
-        .layout { display: flex; min-height: 100vh; }
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
 
-        /* SIDEBAR (TIDAK DIUBAH) */
-        .sidebar {
-            width: 180px; background: #00A651;
-            padding: 20px 0; display: flex; flex-direction: column; gap: 4px;
-        }
-        .sidebar a {
-            display: flex; align-items: center; gap: 10px;
-            padding: 10px 20px; color: #ffffff; text-decoration: none; font-size: 14px;
-        }
-        .sidebar a.inactive { color: #D9F0E3; }
-        .sidebar a:hover { background: rgba(255,255,255,0.1); }
+body {
+    font-family: 'Inter', sans-serif;
+    background: #F9FAFB;
+    color: #111827;
+}
 
-        .main { flex: 1; display: flex; flex-direction: column; }
+/* Layout */
+.layout {
+    display: flex;
+    min-height: 100vh;
+}
 
-        /* HEADER (TIDAK DIUBAH) */
-        .header {
-            background: #FFFFFF; border-bottom: 1px solid #E5E3DC;
-            padding: 14px 24px; display: flex; justify-content: space-between;
-        }
-        .header-left { display: flex; align-items: center; gap: 10px; }
-        .logo-badge { width: 34px; height: 34px; }
-        .header-title { font-size: 14px; }
-        .header-subtitle { font-size: 11px; color: #6B6B6B; }
-        .avatar {
-            width: 30px; height: 30px; border-radius: 50%;
-            background: #EEEDFE; display: flex; align-items: center;
-            justify-content: center; font-size: 12px;
-        }
+/* Sidebar */
+.sidebar {
+    width: 230px;
+    background: #0F172A;
+    padding: 24px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
 
-        .content { padding: 24px; }
+.sidebar h2 {
+    color: white;
+    font-size: 16px;
+    margin-bottom: 20px;
+    padding-left: 10px;
+}
 
-        .section { margin-bottom: 28px; }
-        .section-title {
-            font-size: 15px;
-            font-weight: 600;
-            margin-bottom: 16px;
-        }
+.sidebar a {
+    text-decoration: none;
+    padding: 12px 16px;
+    border-radius: 8px;
+    color: #CBD5E1;
+    font-size: 14px;
+    transition: 0.2s;
+}
 
-        /* =========================
-           BERITA TERBARU (GRID)
-        ========================= */
-        .news-grid {
-            display: grid;
-            grid-template-columns: 2fr 1fr;
-            gap: 16px;
-        }
+.sidebar a:hover {
+    background: #1E293B;
+    color: white;
+}
 
-        .news-highlight {
-            display: block;
-            background: #FFFFFF;
-            border: 1px solid #E5E3DC;
-            border-radius: 12px;
-            overflow: hidden;
-            text-decoration: none;
-            color: inherit;
-            transition: 0.3s;
-        }
-        .news-highlight:hover { transform: translateY(-4px); }
+.sidebar a.active {
+    background: #2563EB;
+    color: white;
+}
 
-        .highlight-image {
-            height: 220px;
-            background-size: cover;
-            background-position: center;
-            background-color: #EEF6EB;
-        }
+/* Main */
+.main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
 
-        .highlight-content { padding: 16px; }
-        .highlight-content h3 {
-            font-size: 16px;
-            margin: 8px 0;
-        }
-        .highlight-content p {
-            font-size: 13px;
-            color: #6B6B6B;
-            margin-bottom: 8px;
-        }
+/* Header */
+.header {
+    background: white;
+    padding: 18px 28px;
+    border-bottom: 1px solid #E5E7EB;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
 
-        .badge {
-            display: inline-block;
-            background: #EAF3DE;
-            color: #3B6D11;
-            font-size: 11px;
-            padding: 2px 8px;
-            border-radius: 4px;
-        }
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
 
-        /* Card kecil */
-        .news-card-small {
-            display: flex;
-            background: #FFFFFF;
-            border: 1px solid #E5E3DC;
-            border-radius: 10px;
-            overflow: hidden;
-            text-decoration: none;
-            color: inherit;
-            gap: 10px;
-        }
-        .news-card-small:hover { background: #F9F9F7; }
+.logo img {
+    width: 36px;
+}
 
-        .card-image {
-            width: 90px;
-            background-size: cover;
-            background-position: center;
-            background-color: #EEF6EB;
-        }
+.header-title {
+    font-weight: 600;
+    font-size: 15px;
+}
 
-        .card-body { padding: 10px; }
-        .news-title {
-            font-size: 13px;
-            font-weight: 600;
-        }
+.header-subtitle {
+    font-size: 12px;
+    color: #6B7280;
+}
 
-        .news-meta {
-            font-size: 11px;
-            color: #9B9990;
-        }
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
 
-        /* =========================
-           BERITA LAMA
-        ========================= */
-        .news-list-modern {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
+.avatar {
+    width: 36px;
+    height: 36px;
+    background: #2563EB;
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+}
 
-        .news-row {
-            display: flex;
-            gap: 14px;
-            background: #FFFFFF;
-            border: 1px solid #E5E3DC;
-            border-radius: 10px;
-            padding: 10px;
-            text-decoration: none;
-            color: inherit;
-        }
-        .news-row:hover { background: #F9F9F7; }
+/* Content */
+.content {
+    padding: 28px;
+}
 
-        .row-image {
-            width: 80px;
-            height: 60px;
-            background-size: cover;
-            background-position: center;
-            background-color: #EEF6EB;
-            border-radius: 6px;
-        }
+/* Section */
+.section {
+    margin-bottom: 32px;
+}
 
-        .row-content { flex: 1; }
+.section-title {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 16px;
+}
 
-        /* EMPTY */
-        .empty-state {
-            background: #FFFFFF;
-            border: 1px dashed #D6D3C9;
-            border-radius: 10px;
-            padding: 24px;
-            text-align: center;
-            color: #9B9990;
-            font-size: 13px;
-        }
+/* Carousel */
+.carousel {
+    display: flex;
+    gap: 16px;
+    overflow-x: auto;
+}
 
-        /* RESPONSIVE */
-        @media (max-width: 768px) {
-            .news-grid { grid-template-columns: 1fr; }
-        }
-    </style>
+/* Card */
+.news-card {
+    min-width: 260px;
+    background: white;
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    transition: 0.25s;
+}
+
+.news-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+}
+
+/* Image */
+.news-image {
+    height: 150px;
+    background-size: cover;
+    background-position: center;
+    background-color: #E5E7EB;
+}
+
+/* Body */
+.news-body {
+    padding: 16px;
+}
+
+.badge {
+    background: #DBEAFE;
+    color: #1D4ED8;
+    font-size: 11px;
+    padding: 4px 8px;
+    border-radius: 6px;
+    display: inline-block;
+    margin-bottom: 8px;
+}
+
+.news-title {
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 6px;
+    line-height: 1.4;
+}
+
+.news-snippet {
+    font-size: 13px;
+    color: #6B7280;
+    margin-bottom: 10px;
+    line-height: 1.5;
+}
+
+.news-meta {
+    font-size: 11px;
+    color: #9CA3AF;
+}
+
+/* Empty */
+.empty-state {
+    background: white;
+    border: 1px dashed #D1D5DB;
+    padding: 24px;
+    border-radius: 12px;
+    text-align: center;
+    color: #9CA3AF;
+}
+</style>
+
 </head>
 
 <body>
+
 <div class="layout">
 
-    <!-- SIDEBAR -->
-    <div class="sidebar">
-        <a href="{% url 'dashboard' %}">🏠 Home</a>
-        <a href="{% url 'analisis' %}" class="inactive">📊 Analisis</a>
+```
+<!-- Sidebar -->
+<div class="sidebar">
+    <h2>Dashboard</h2>
+    <a href="{% url 'dashboard' %}" class="active">🏠 Home</a>
+    <a href="{% url 'analisis' %}">📊 Analisis</a>
+</div>
+
+<!-- Main -->
+<div class="main">
+
+    <!-- Header -->
+    <div class="header">
+        <div class="header-left">
+            <div class="logo">
+                <img src="{% static 'img/logo-bpjs.png' %}">
+            </div>
+            <div>
+                <div class="header-title">BPJS Kesehatan</div>
+                <div class="header-subtitle">Monitoring Berita</div>
+            </div>
+        </div>
+
+        <div class="header-right">
+            <div class="avatar">
+                {{ user.username|slice:":2"|upper }}
+            </div>
+
+            <form method="post" action="{% url 'logout' %}">
+                {% csrf_token %}
+                <button style="border:none; background:none; cursor:pointer; font-size:13px; color:#2563EB;">
+                    Logout
+                </button>
+            </form>
+        </div>
     </div>
 
-    <div class="main">
+    <!-- Content -->
+    <div class="content">
 
-        <!-- HEADER -->
-        <div class="header">
-            <div class="header-left">
-                <div class="logo-badge">
-                    <img src="{% static 'img/logo-bpjs.png' %}" style="width:100%">
-                </div>
-                <div>
-                    <p class="header-title">BPJS Kesehatan</p>
-                    <p class="header-subtitle">Badan Penyelenggara Jaminan Sosial</p>
-                </div>
-            </div>
+        <!-- Terbaru -->
+        <div class="section">
+            <div class="section-title">Berita Terbaru</div>
 
-            <div class="header-right">
-                <div class="avatar">{{ user.username|slice:":2"|upper }}</div>
-                <form method="post" action="{% url 'logout' %}">
-                    {% csrf_token %}
-                    <button style="background:none;border:none;color:#1B5FAA;cursor:pointer;">
-                        Logout
-                    </button>
-                </form>
-            </div>
-        </div>
+            {% if berita_terbaru %}
+            <div class="carousel">
+                {% for news in berita_terbaru %}
+                <a href="{{ news.url }}" target="_blank" style="text-decoration:none; color:inherit;">
+                    <div class="news-card">
 
-        <!-- CONTENT -->
-        <div class="content">
+                        <div class="news-image"
+                        {% if news.image_url %}
+                            style="background-image:url('{{ news.image_url }}')"
+                        {% endif %}></div>
 
-            <!-- BERITA TERBARU -->
-            <div class="section">
-                <div class="section-title">Berita Terbaru</div>
+                        <div class="news-body">
+                            <span class="badge">Baru</span>
 
-                {% if berita_terbaru %}
-                <div class="news-grid">
-
-                    {% for news in berita_terbaru %}
-                        {% if forloop.first %}
-                        <a href="{{ news.url }}" target="_blank" class="news-highlight">
-                            <div class="highlight-image" style="background-image:url('{{ news.image_url }}')"></div>
-                            <div class="highlight-content">
-                                <span class="badge">Baru</span>
-                                <h3>{{ news.title }}</h3>
-                                <p>{{ news.snippet|striptags }}</p>
-                                <span class="news-meta">{{ news.source }} · {{ news.published_date|date:"d M Y" }}</span>
+                            <div class="news-title">
+                                {{ news.title }}
                             </div>
-                        </a>
-                        {% else %}
-                        <a href="{{ news.url }}" target="_blank" class="news-card-small">
-                            <div class="card-image" style="background-image:url('{{ news.image_url }}')"></div>
-                            <div class="card-body">
-                                <div class="news-title">{{ news.title }}</div>
-                                <div class="news-meta">{{ news.published_date|date:"d M Y" }}</div>
+
+                            <div class="news-snippet">
+                                {{ news.snippet|striptags }}
                             </div>
-                        </a>
-                        {% endif %}
-                    {% endfor %}
 
-                </div>
-                {% else %}
-                <div class="empty-state">Belum ada berita terbaru.</div>
-                {% endif %}
-            </div>
-
-            <!-- BERITA SEBELUMNYA -->
-            <div class="section">
-                <div class="section-title">Berita Sebelumnya</div>
-
-                {% if berita_sebelumnya %}
-                <div class="news-list-modern">
-                    {% for news in berita_sebelumnya %}
-                    <a href="{{ news.url }}" target="_blank" class="news-row">
-                        <div class="row-image" style="background-image:url('{{ news.image_url }}')"></div>
-                        <div class="row-content">
-                            <div class="news-title">{{ news.title }}</div>
-                            <div class="news-meta">{{ news.source }} · {{ news.published_date|date:"d M Y" }}</div>
+                            <div class="news-meta">
+                                {{ news.source }} • {{ news.published_date|date:"d M Y" }}
+                            </div>
                         </div>
-                    </a>
-                    {% endfor %}
-                </div>
-                {% else %}
-                <div class="empty-state">Belum ada berita lain.</div>
-                {% endif %}
-            </div>
 
+                    </div>
+                </a>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="empty-state">Belum ada berita terbaru.</div>
+            {% endif %}
         </div>
+
+        <!-- Sebelumnya -->
+        <div class="section">
+            <div class="section-title">Berita Sebelumnya</div>
+
+            {% if berita_sebelumnya %}
+            <div class="carousel">
+                {% for news in berita_sebelumnya %}
+                <a href="{{ news.url }}" target="_blank" style="text-decoration:none; color:inherit;">
+                    <div class="news-card">
+
+                        <div class="news-image"
+                        {% if news.image_url %}
+                            style="background-image:url('{{ news.image_url }}')"
+                        {% endif %}></div>
+
+                        <div class="news-body">
+                            <div class="news-title">
+                                {{ news.title }}
+                            </div>
+
+                            <div class="news-snippet">
+                                {{ news.snippet|striptags }}
+                            </div>
+
+                            <div class="news-meta">
+                                {{ news.source }} • {{ news.published_date|date:"d M Y" }}
+                            </div>
+                        </div>
+
+                    </div>
+                </a>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="empty-state">Belum ada berita lain.</div>
+            {% endif %}
+        </div>
+
     </div>
 </div>
+```
+
+</div>
+
 </body>
 </html>
