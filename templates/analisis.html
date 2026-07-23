@@ -41,7 +41,7 @@
         .legend-list { display: flex; flex-direction: column; gap: 8px; font-size: 13px; }
         .legend-item { display: flex; align-items: center; gap: 8px; }
         .legend-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
-        .attention-panel { flex: 1; border-left: 1px solid #E5E3DC; padding-left: 24px; }
+        .attention-panel { flex: 1.8; border-left: 1px solid #E5E3DC; padding-left: 24px; }
         .attention-title { font-size: 13px; font-weight: 500; margin-bottom: 6px; line-height: 1.4; }
         .attention-meta { font-size: 12px; color: #9B9990; margin-bottom: 8px; }
         .attention-link { font-size: 12px; color: #B3261E; text-decoration: none; font-weight: 500; }
@@ -118,14 +118,37 @@
                     </div>
 
                     <div class="attention-panel">
-                        <p class="chart-info-title">Perlu Perhatian</p>
-                        {% if berita_negatif_terbaru %}
-                            <p class="attention-title">{{ berita_negatif_terbaru.title }}</p>
-                            <p class="attention-meta">{{ berita_negatif_terbaru.source }} &middot; {{ berita_negatif_terbaru.published_date|date:"d M Y" }}</p>
-                            <a href="{{ berita_negatif_terbaru.url }}" target="_blank" class="attention-link">Baca berita ini &#8599;</a>
-                        {% else %}
-                            <p class="attention-empty">Tidak ada berita bersentimen negatif saat ini. Kondisi pemberitaan cukup baik.</p>
-                        {% endif %}
+                        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
+                            <p class="chart-info-title" style="margin: 0;">Tren Bulanan</p>
+                        </div>
+                        <form method="get" style="display: flex; gap: 6px; align-items: center; margin-bottom: 12px; flex-wrap: wrap;">
+                            <span style="font-size: 11px; color: #9B9990;">Dari</span>
+                            <select name="start_month" style="font-size: 11px; padding: 4px 6px; border-radius: 6px; border: 1px solid #D6D3C9;">
+                                {% for num, label in bulan_list %}
+                                <option value="{{ num }}" {% if num == selected_start_month %}selected{% endif %}>{{ label }}</option>
+                                {% endfor %}
+                            </select>
+                            <select name="start_year" style="font-size: 11px; padding: 4px 6px; border-radius: 6px; border: 1px solid #D6D3C9;">
+                                {% for y in tahun_list %}
+                                <option value="{{ y }}" {% if y == selected_start_year %}selected{% endif %}>{{ y }}</option>
+                                {% endfor %}
+                            </select>
+                            <span style="font-size: 11px; color: #9B9990;">s/d</span>
+                            <select name="end_month" style="font-size: 11px; padding: 4px 6px; border-radius: 6px; border: 1px solid #D6D3C9;">
+                                {% for num, label in bulan_list %}
+                                <option value="{{ num }}" {% if num == selected_end_month %}selected{% endif %}>{{ label }}</option>
+                                {% endfor %}
+                            </select>
+                            <select name="end_year" style="font-size: 11px; padding: 4px 6px; border-radius: 6px; border: 1px solid #D6D3C9;">
+                                {% for y in tahun_list %}
+                                <option value="{{ y }}" {% if y == selected_end_year %}selected{% endif %}>{{ y }}</option>
+                                {% endfor %}
+                            </select>
+                            <button type="submit" style="font-size: 11px; padding: 4px 12px; border-radius: 6px; border: none; background: #00A651; color: white; cursor: pointer;">Terapkan</button>
+                        </form>
+                        <div style="height: 140px;">
+                            <canvas id="trendChart"></canvas>
+                        </div>
                     </div>
                 </div>
 
@@ -154,10 +177,12 @@
         new Chart(ctx, {
             type: 'doughnut',
             data: {
-               labels: ['Positif', 'Negatif'],
+                labels: ['Positif', 'Negatif'],
                 datasets: [{
                     data: [{{ total_positif }}, {{ total_negatif }}],
                     backgroundColor: ['#3B6D11', '#B3261E'],
+                    borderWidth: 0,
+                }]
             },
             options: {
                 responsive: true,
@@ -165,6 +190,43 @@
                 cutout: '65%',
                 plugins: {
                     legend: { display: false }
+                }
+            }
+        });
+
+        const trendCtx = document.getElementById('trendChart').getContext('2d');
+        new Chart(trendCtx, {
+            type: 'line',
+            data: {
+                labels: {{ chart_labels|safe }},
+                datasets: [
+                    {
+                        label: 'Positif',
+                        data: {{ chart_positif|safe }},
+                        borderColor: '#3B6D11',
+                        backgroundColor: 'rgba(59, 109, 17, 0.1)',
+                        tension: 0.3,
+                        fill: true,
+                    },
+                    {
+                        label: 'Negatif',
+                        data: {{ chart_negatif|safe }},
+                        borderColor: '#B3261E',
+                        backgroundColor: 'rgba(179, 38, 30, 0.1)',
+                        tension: 0.3,
+                        fill: true,
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: true, position: 'bottom', labels: { boxWidth: 10, font: { size: 11 } } }
+                },
+                scales: {
+                    y: { beginAtZero: true, ticks: { stepSize: 1, font: { size: 10 } } },
+                    x: { ticks: { font: { size: 10 } } }
                 }
             }
         });

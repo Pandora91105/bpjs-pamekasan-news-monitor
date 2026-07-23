@@ -2,10 +2,13 @@ from django.contrib.auth.views import LoginView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import TemplateView, View
 from django.shortcuts import redirect, get_object_or_404
-from django.utils import timezone
 from .models import News
+from datetime import datetime, timedelta
 from django.utils import timezone
-from datetime import timedelta
+from django.db.models import Count, Q
+from django.db.models.functions import TruncMonth
+import json
+import calendar
 
 class CustomLoginView(LoginView):
     template_name = 'login.html'
@@ -61,5 +64,61 @@ class AnalisisView(LoginRequiredMixin, TemplateView):
 
         context['news_list'] = all_news.order_by('-published_date')
         context['filter_aktif'] = filter_sentiment
+
+        # Data untuk dropdown filter (bulan & tahun yang tersedia)
+        context['bulan_list'] = [
+            (1, 'Januari'), (2, 'Februari'), (3, 'Maret'), (4, 'April'),
+            (5, 'Mei'), (6, 'Juni'), (7, 'Juli'), (8, 'Agustus'),
+            (9, 'September'), (10, 'Oktober'), (11, 'November'), (12, 'Desember'),
+        ]
+
+        tahun_tersedia = News.objects.filter(is_relevant=True).dates('published_date', 'year')
+        context['tahun_list'] = sorted(set(d.year for d in tahun_tersedia), reverse=True)
+
+        # Ambil parameter filter dari URL, default 6 bulan terakhir
+        today = timezone.now()
+        default_start = today - timedelta(days=180)
+
+        start_month = int(self.request.GET.get('start_month', default_start.month))
+        start_year = int(self.request.GET.get('start_year', default_start.year))
+        end_month = int(self.request.GET.get('end_month', today.month))
+        end_year = int(self.request.GET.get('end_year', today.year))
+
+        context['selected_start_month'] = start_month
+        context['selected_start_year'] = start_year
+        context['selected_end_month'] = end_month
+        context['selected_end_year'] = end_year
+
+        # Hitung tanggal awal & akhir rentang filter
+        range_start = datetime(start_year, start_month, 1, tzinfo=timezone.get_current_timezone())
+        last_day = calendar.monthrange(end_year, end_month)[1]
+        range_end = datetime(end_year, end_month, last_day, 23, 59, 59, tzinfo=timezone.get_current_timezone())
+
+        # Query data per bulan dalam rentang tersebut
+        monthly_data = (
+            News.objects.filter(is_relevant=True, published_date__gte=range_start, published_date__lte=range_end)
+            .annotate(month=TruncMonth('published_date'))
+            .values('month')
+            .annotate(
+                positif=Count('id', filter=Q(sentiment='positif')),
+                negatif=Count('id', filter=Q(sentiment='negatif')),
+            )
+            .order_by('month')
+        )
+
+        chart_labels = []
+        chart_positif = []
+        chart_negatif = []
+        bulan_singkat = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des']
+
+        for item in monthly_data:
+            bulan_label = f"{bulan_singkat[item['month'].month - 1]} {item['month'].year}"
+            chart_labels.append(bulan_label)
+            chart_positif.append(item['positif'])
+            chart_negatif.append(item['negatif'])
+
+        context['chart_labels'] = json.dumps(chart_labels)
+        context['chart_positif'] = json.dumps(chart_positif)
+        context['chart_negatif'] = json.dumps(chart_negatif)
 
         return context
