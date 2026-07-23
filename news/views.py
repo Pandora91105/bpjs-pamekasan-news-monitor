@@ -135,10 +135,21 @@ class TriggerFetchView(View):
         if not expected_token or token != expected_token:
             return HttpResponse('Unauthorized', status=401)
 
-        def run_fetch():
-            call_command('fetch_news')
+        try:
+            def run_fetch():
+                try:
+                    call_command('fetch_news')
+                except Exception as e:
+                    print(f"ERROR saat menjalankan fetch_news di background: {e}")
+                    import traceback
+                    traceback.print_exc()
 
-        thread = threading.Thread(target=run_fetch)
-        thread.start()
+            thread = threading.Thread(target=run_fetch)
+            thread.start()
 
-        return HttpResponse('Fetch dimulai di background.')
+            return HttpResponse('Fetch dimulai di background.')
+        except Exception as e:
+            print(f"ERROR di TriggerFetchView: {e}")
+            import traceback
+            traceback.print_exc()
+            return HttpResponse(f'Error: {e}', status=500)
