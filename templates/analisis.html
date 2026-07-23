@@ -11,54 +11,92 @@
         .layout { display: flex; min-height: 100vh; }
 
         .sidebar { width: 180px; background: #00A651; flex-shrink: 0; padding: 20px 0; display: flex; flex-direction: column; gap: 4px; }
-        .sidebar a { display: flex; align-items: center; gap: 10px; padding: 10px 20px; color: #ffffff; text-decoration: none; font-size: 14px; }
+        .sidebar a { display: flex; align-items: center; gap: 10px; padding: 10px 20px; color: #ffffff; text-decoration: none; font-size: 14px; transition: background 0.2s; }
         .sidebar a.inactive { color: #D9F0E3; }
-        .sidebar a:hover { background: rgba(255,255,255,0.1); }
+        .sidebar a:hover { background: rgba(255,255,255,0.15); }
 
         .main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
 
         .header { background: #FFFFFF; border-bottom: 1px solid #E5E3DC; padding: 14px 24px; display: flex; align-items: center; justify-content: space-between; }
         .header-left { display: flex; align-items: center; gap: 10px; }
-        .logo-badge { width: 34px; height: 34px; border-radius: 50%; background: #00A651; display: flex; align-items: center; justify-content: center; color: white; font-size: 16px; }
-        .header-title { font-weight: 500; font-size: 14px; margin: 0; }
+        .icon-badge { width: 34px; height: 34px; border-radius: 10px; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+        .header-title { font-weight: 600; font-size: 14px; margin: 0; color: #1A1A1A; }
         .header-subtitle { font-size: 11px; color: #6B6B6B; margin: 0; }
         .header-right { display: flex; align-items: center; gap: 16px; }
         .header-right a { font-size: 12px; color: #1B5FAA; text-decoration: none; }
 
-        .content { padding: 24px; overflow-y: auto; overflow-x: hidden; }
+        .content { padding: 28px; overflow-y: auto; overflow-x: hidden; }
 
-        .stats-row { display: flex; gap: 14px; margin-bottom: 24px; }
-        .stat-card { flex: 1; background: #FFFFFF; border: 1px solid #E5E3DC; border-radius: 10px; padding: 16px; text-decoration: none; color: inherit; cursor: pointer; }
+        .page-title { font-size: 20px; font-weight: 600; margin-bottom: 4px; color: #1A1A1A; }
+        .page-subtitle { font-size: 13px; color: #9B9990; margin-bottom: 24px; }
+
+        /* Stat cards */
+        .stats-row { display: flex; gap: 16px; margin-bottom: 24px; }
+        .stat-card {
+            flex: 1; background: #FFFFFF; border: 1px solid #EFEDE6; border-radius: 16px;
+            padding: 20px; text-decoration: none; color: inherit; cursor: pointer;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            position: relative; overflow: hidden;
+        }
+        .stat-card:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0,0,0,0.08); }
         .stat-card.active { border: 2px solid #00A651; }
-        .stat-label { font-size: 12px; color: #6B6B6B; margin-bottom: 6px; }
-        .stat-value { font-size: 24px; font-weight: 600; }
+        .stat-icon {
+            width: 38px; height: 38px; border-radius: 12px; display: flex; align-items: center;
+            justify-content: center; font-size: 18px; margin-bottom: 14px;
+        }
+        .stat-semua .stat-icon { background: #E9EEFB; }
+        .stat-positif .stat-icon { background: #EAF3DE; }
+        .stat-negatif .stat-icon { background: #FDECEA; }
+        .stat-label { font-size: 12px; color: #6B6B6B; margin-bottom: 4px; }
+        .stat-value { font-size: 28px; font-weight: 700; }
+        .stat-semua .stat-value { color: #2F3B8C; }
         .stat-positif .stat-value { color: #3B6D11; }
-        .stat-netral .stat-value { color: #6B6B6B; }
         .stat-negatif .stat-value { color: #B3261E; }
 
-        .chart-card { background: #FFFFFF; border: 1px solid #E5E3DC; border-radius: 10px; padding: 20px; margin-bottom: 24px; display: flex; align-items: center; gap: 24px; }
-        .chart-box { width: 160px; height: 160px; flex-shrink: 0; }
-        .chart-info-title { font-size: 14px; font-weight: 500; margin-bottom: 12px; }
-        .legend-list { display: flex; flex-direction: column; gap: 8px; font-size: 13px; }
+        /* Chart card */
+        .chart-card {
+            background: #FFFFFF; border: 1px solid #EFEDE6; border-radius: 16px;
+            padding: 24px; margin-bottom: 24px; display: flex; align-items: center; gap: 28px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+        }
+        .chart-box { width: 170px; height: 170px; flex-shrink: 0; position: relative; }
+        .chart-center-text {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            text-align: center; pointer-events: none;
+        }
+        .chart-center-value { font-size: 26px; font-weight: 700; color: #1A1A1A; }
+        .chart-center-label { font-size: 11px; color: #9B9990; }
+        .chart-info-title { font-size: 14px; font-weight: 600; margin-bottom: 14px; color: #1A1A1A; }
+        .legend-list { display: flex; flex-direction: column; gap: 10px; font-size: 13px; }
         .legend-item { display: flex; align-items: center; gap: 8px; }
         .legend-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
-        .attention-panel { flex: 1.8; border-left: 1px solid #E5E3DC; padding-left: 24px; }
-        .attention-title { font-size: 13px; font-weight: 500; margin-bottom: 6px; line-height: 1.4; }
-        .attention-meta { font-size: 12px; color: #9B9990; margin-bottom: 8px; }
-        .attention-link { font-size: 12px; color: #B3261E; text-decoration: none; font-weight: 500; }
-        .attention-empty { font-size: 13px; color: #9B9990; line-height: 1.5; }
+        .attention-panel { flex: 1.8; border-left: 1px solid #EFEDE6; padding-left: 28px; }
 
-        .news-item { background: #FFFFFF; border: 1px solid #E5E3DC; border-radius: 10px; padding: 14px 16px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
-        .news-title { font-size: 14px; font-weight: 500; margin-bottom: 6px; }
+        /* News items */
+        .section-title { font-size: 15px; font-weight: 600; margin-bottom: 14px; color: #1A1A1A; display: flex; align-items: center; gap: 8px; }
+        .news-item {
+            background: #FFFFFF; border: 1px solid #EFEDE6; border-radius: 14px;
+            padding: 16px 18px; margin-bottom: 10px; display: flex; justify-content: space-between;
+            align-items: flex-start; gap: 12px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
+        }
+        .news-item:hover { transform: translateX(3px); box-shadow: 0 4px 12px rgba(0,0,0,0.06); }
+        .news-title { font-size: 14px; font-weight: 500; margin-bottom: 6px; color: #1A1A1A; }
         .news-meta { font-size: 12px; color: #9B9990; }
         .news-meta a { color: #1B5FAA; text-decoration: none; margin-left: 8px; }
 
-        .sentiment-tag { font-size: 11px; padding: 3px 10px; border-radius: 6px; font-weight: 500; white-space: nowrap; }
+        .sentiment-tag { font-size: 11px; padding: 4px 12px; border-radius: 20px; font-weight: 600; white-space: nowrap; }
         .tag-positif { background: #EAF3DE; color: #3B6D11; }
         .tag-netral { background: #EFEFEC; color: #6B6B6B; }
         .tag-negatif { background: #FDECEA; color: #B3261E; }
 
-        .empty-state { background: #FFFFFF; border: 1px dashed #D6D3C9; border-radius: 10px; padding: 30px; text-align: center; color: #9B9990; font-size: 13px; }
+        .empty-state {
+            background: #FFFFFF; border: 1px dashed #D6D3C9; border-radius: 16px;
+            padding: 40px; text-align: center; color: #9B9990; font-size: 13px;
+        }
+        .empty-state .empty-icon { font-size: 36px; margin-bottom: 10px; display: block; }
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
 </head>
@@ -72,7 +110,7 @@
         <div class="main">
             <div class="header">
                 <div class="header-left">
-                    <div class="logo-badge" style="background: transparent;"><img src="{% static 'img/logo-bpjs.png' %}" alt="Logo BPJS Kesehatan" style="width: 100%; height: 100%; object-fit: contain;"></div>
+                    <div class="icon-badge"><img src="{% static 'img/logo-bpjs.png' %}" alt="Logo BPJS Kesehatan" style="width: 100%; height: 100%; object-fit: contain;"></div>
                     <div>
                         <p class="header-title">BPJS Kesehatan</p>
                         <p class="header-subtitle">Badan Penyelenggara Jaminan Sosial</p>
@@ -87,16 +125,22 @@
             </div>
 
             <div class="content">
+                <p class="page-title">Analisis Sentimen Berita</p>
+                <p class="page-subtitle">Pantau tren pemberitaan BPJS Kesehatan Cabang Pamekasan</p>
+
                 <div class="stats-row">
-                    <a href="?sentiment=semua" class="stat-card {% if filter_aktif == 'semua' %}active{% endif %}">
+                    <a href="?sentiment=semua" class="stat-card stat-semua {% if filter_aktif == 'semua' %}active{% endif %}">
+                        <div class="stat-icon">&#128240;</div>
                         <div class="stat-label">Semua Berita</div>
                         <div class="stat-value">{{ total_semua }}</div>
                     </a>
                     <a href="?sentiment=positif" class="stat-card stat-positif {% if filter_aktif == 'positif' %}active{% endif %}">
+                        <div class="stat-icon">&#128522;</div>
                         <div class="stat-label">Positif</div>
                         <div class="stat-value">{{ total_positif }}</div>
                     </a>
                     <a href="?sentiment=negatif" class="stat-card stat-negatif {% if filter_aktif == 'negatif' %}active{% endif %}">
+                        <div class="stat-icon">&#9888;&#65039;</div>
                         <div class="stat-label">Negatif</div>
                         <div class="stat-value">{{ total_negatif }}</div>
                     </a>
@@ -105,6 +149,10 @@
                 <div class="chart-card">
                     <div class="chart-box">
                         <canvas id="sentimentChart"></canvas>
+                        <div class="chart-center-text">
+                            <div class="chart-center-value">{{ total_semua }}</div>
+                            <div class="chart-center-label">Total Berita</div>
+                        </div>
                     </div>
 
                     <div style="flex: 1;">
@@ -112,11 +160,11 @@
                         <div class="legend-list">
                             <div class="legend-item">
                                 <span class="legend-dot" style="background: #3B6D11;"></span>
-                                Positif — {{ total_positif }} berita ({{ persen_positif }}%)
+                                Positif &mdash; {{ total_positif }} berita ({{ persen_positif }}%)
                             </div>
                             <div class="legend-item">
                                 <span class="legend-dot" style="background: #B3261E;"></span>
-                                Negatif — {{ total_negatif }} berita ({{ persen_negatif }}%)
+                                Negatif &mdash; {{ total_negatif }} berita ({{ persen_negatif }}%)
                             </div>
                         </div>
                     </div>
@@ -148,7 +196,7 @@
                                 <option value="{{ y }}" {% if y == selected_end_year %}selected{% endif %}>{{ y }}</option>
                                 {% endfor %}
                             </select>
-                            <button type="submit" style="font-size: 11px; padding: 4px 12px; border-radius: 6px; border: none; background: #00A651; color: white; cursor: pointer;">Terapkan</button>
+                            <button type="submit" style="font-size: 11px; padding: 5px 14px; border-radius: 8px; border: none; background: #00A651; color: white; cursor: pointer; font-weight: 600;">Terapkan</button>
                         </form>
                         <div style="height: 140px;">
                             <canvas id="trendChart"></canvas>
@@ -156,6 +204,7 @@
                     </div>
                 </div>
 
+                <p class="section-title">&#128203; Daftar Berita</p>
                 {% if news_list %}
                     {% for news in news_list %}
                     <div class="news-item">
@@ -170,7 +219,10 @@
                     </div>
                     {% endfor %}
                 {% else %}
-                    <div class="empty-state">Tidak ada berita untuk filter ini.</div>
+                    <div class="empty-state">
+                        <span class="empty-icon">&#128269;</span>
+                        Tidak ada berita untuk filter ini.
+                    </div>
                 {% endif %}
             </div>
         </div>
@@ -191,7 +243,7 @@
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                cutout: '65%',
+                cutout: '72%',
                 plugins: {
                     legend: { display: false }
                 }
