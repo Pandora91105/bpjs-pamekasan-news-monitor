@@ -135,12 +135,15 @@ class AnalisisView(LoginRequiredMixin, TemplateView):
         context['chart_positif'] = json.dumps(chart_positif)
         context['chart_negatif'] = json.dumps(chart_negatif)
 
-        context['sumber_stats'] = (
+        sumber_stats_all = (
             News.objects.filter(is_relevant=True)
             .values('source')
             .annotate(jumlah=Count('id'))
             .order_by('-jumlah')
         )
+        sumber_paginator = Paginator(sumber_stats_all, 8)
+        sumber_page_number = self.request.GET.get('sumber_page', 1)
+        context['sumber_stats'] = sumber_paginator.get_page(sumber_page_number)
 
         return context
 
