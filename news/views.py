@@ -14,7 +14,8 @@ import os
 import threading
 import json
 import calendar     
-
+import html as html_module
+from django.utils.html import strip_tags
 class CustomLoginView(LoginView):
     template_name = 'login.html'
     redirect_authenticated_user = True
@@ -30,13 +31,14 @@ class DashboardView(LoginRequiredMixin, TemplateView):
 
         cutoff = timezone.now() - timedelta(days=7)
 
-        context['berita_terbaru'] = approved_news.filter(
-            published_date__gte=cutoff
-        ).order_by('published_date')
+        berita_terbaru = list(approved_news.filter(published_date__gte=cutoff).order_by('published_date'))
+        berita_sebelumnya = list(approved_news.filter(published_date__lt=cutoff).order_by('-published_date'))
 
-        context['berita_sebelumnya'] = approved_news.filter(
-            published_date__lt=cutoff
-        ).order_by('-published_date')   
+        for news in berita_terbaru + berita_sebelumnya:
+            news.snippet_bersih = html_module.unescape(strip_tags(news.snippet))[:200]
+
+        context['berita_terbaru'] = berita_terbaru
+        context['berita_sebelumnya'] = berita_sebelumnya
 
         return context
 
@@ -125,6 +127,13 @@ class AnalisisView(LoginRequiredMixin, TemplateView):
         context['chart_labels'] = json.dumps(chart_labels)
         context['chart_positif'] = json.dumps(chart_positif)
         context['chart_negatif'] = json.dumps(chart_negatif)
+
+        context['sumber_stats'] = (
+            News.objects.filter(is_relevant=True)
+            .values('source')
+            .annotate(jumlah=Count('id'))
+            .order_by('-jumlah')
+        )
 
         return context
 

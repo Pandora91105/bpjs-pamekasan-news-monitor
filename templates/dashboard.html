@@ -62,28 +62,24 @@
         .carousel::-webkit-scrollbar-thumb { background: #BCCABB; border-radius: 10px; }
 
         .news-card {
-            min-width: 240px; max-width: 240px; background: #FFFFFF;
-            border: 1px solid #E5E3DC; border-radius: 10px; overflow: hidden; flex-shrink: 0;
+            min-width: 290px; max-width: 290px; background: #FFFFFF;
+            border: 1px solid #E5E3DC; border-radius: 12px; overflow: hidden; flex-shrink: 0;
         }
         .news-image {
-            height: 120px; background: #EEF6EB; display: flex; align-items: center;
+            height: 160px; background: #E4E4E1; display: flex; align-items: center;
             justify-content: center; background-size: cover; background-position: center;
         }
-        .news-image .placeholder-icon { font-size: 32px; color: #8fae8b; }
-        .news-body { padding: 14px; }
-        .badge {
-            display: inline-block; background: #EAF3DE; color: #3B6D11;
-            font-size: 11px; padding: 2px 8px; border-radius: 4px; margin-bottom: 8px;
-        }
+        .news-image .placeholder-icon { font-size: 32px; color: #B3B1AA; }
+        .news-body { padding: 16px; }
         .news-title {
-            font-size: 13px; font-weight: 600; margin-bottom: 6px; line-height: 1.4;
-            display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+            font-size: 15px; font-weight: 600; margin-bottom: 8px; line-height: 1.4;
+            display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
         }
         .news-snippet {
-            font-size: 12px; color: #6B6B6B; line-height: 1.5; margin-bottom: 8px;
-            display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+            font-size: 13px; color: #6B6B6B; line-height: 1.5; margin-bottom: 10px;
+            display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
         }
-        .news-meta { font-size: 11px; color: #9B9990; }
+        .news-meta { font-size: 12px; color: #9B9990; }
         .news-card a { text-decoration: none; color: inherit; }
 
         .empty-state {
@@ -129,9 +125,8 @@
                                     {% if not news.image_url %}<span class="placeholder-icon">&#128196;</span>{% endif %}
                                 </div>
                                 <div class="news-body">
-                                    <span class="badge">Baru</span>
                                     <div class="news-title">{{ news.title }}</div>
-                                    <div class="news-snippet">{{ news.snippet|striptags }}</div>
+                                    <div class="news-snippet">{{ news.snippet_bersih }}</div>
                                     <div class="news-meta">{{ news.source }} &middot; {{ news.published_date|date:"d M Y" }}</div>
                                 </div>
                             </div>
