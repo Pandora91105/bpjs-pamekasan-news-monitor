@@ -243,6 +243,19 @@
                         Tidak ada berita untuk filter ini.
                     </div>
                 {% endif %}
+                {% if news_list.has_other_pages %}
+                <div style="display: flex; justify-content: center; align-items: center; gap: 10px; margin-top: 16px;">
+                    {% if news_list.has_previous %}
+                    <a href="?sentiment={{ filter_aktif }}&start_month={{ selected_start_month }}&start_year={{ selected_start_year }}&end_month={{ selected_end_month }}&end_year={{ selected_end_year }}&page={{ news_list.previous_page_number }}" style="font-size: 13px; color: #1B5FAA; text-decoration: none; padding: 6px 12px; border: 1px solid #E5E3DC; border-radius: 6px;">&larr; Sebelumnya</a>
+                    {% endif %}
+
+                    <span style="font-size: 13px; color: #6B6B6B;">Halaman {{ news_list.number }} dari {{ news_list.paginator.num_pages }}</span>
+
+                    {% if news_list.has_next %}
+                    <a href="?sentiment={{ filter_aktif }}&start_month={{ selected_start_month }}&start_year={{ selected_start_year }}&end_month={{ selected_end_month }}&end_year={{ selected_end_year }}&page={{ news_list.next_page_number }}" style="font-size: 13px; color: #1B5FAA; text-decoration: none; padding: 6px 12px; border: 1px solid #E5E3DC; border-radius: 6px;">Selanjutnya &rarr;</a>
+                    {% endif %}
+                </div>
+                {% endif %}
             </div>
         </div>
     </div>

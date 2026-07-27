@@ -10,12 +10,14 @@ from django.db.models.functions import TruncMonth
 from django.core.management import call_command
 from django.http import HttpResponse
 from django.views import View
+from django.utils.html import strip_tags
 import os
 import threading
 import json
 import calendar     
 import html as html_module
-from django.utils.html import strip_tags
+from django.core.paginator import Paginator
+
 class CustomLoginView(LoginView):
     template_name = 'login.html'
     redirect_authenticated_user = True
@@ -69,7 +71,12 @@ class AnalisisView(LoginRequiredMixin, TemplateView):
         if filter_sentiment != 'semua':
             all_news = all_news.filter(sentiment=filter_sentiment)
 
-        context['news_list'] = all_news.order_by('-published_date')
+        all_news_sorted = all_news.order_by('-published_date')
+        paginator = Paginator(all_news_sorted, 10)
+        page_number = self.request.GET.get('page', 1)
+        page_obj = paginator.get_page(page_number)
+
+        context['news_list'] = page_obj
         context['filter_aktif'] = filter_sentiment
 
         # Data untuk dropdown filter (bulan & tahun yang tersedia)
