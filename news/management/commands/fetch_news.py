@@ -10,6 +10,7 @@ from google import genai
 from news.models import News
 import re
 import requests
+from googlenewsdecoder import new_decoderv1
 
 load_dotenv()
 client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
@@ -64,7 +65,8 @@ class Command(BaseCommand):
                 else:
                     published_date = datetime.now(timezone.utc)
 
-                image_url = self.fetch_og_image(entry.link)
+                real_url = self.resolve_real_url(entry.link)
+                image_url = self.fetch_og_image(real_url)
 
                 News.objects.create(
                     title=entry.title,

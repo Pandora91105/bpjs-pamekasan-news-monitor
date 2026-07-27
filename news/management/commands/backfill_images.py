@@ -2,6 +2,7 @@ import re
 import time
 import requests
 from django.core.management.base import BaseCommand
+from googlenewsdecoder import new_decoderv1
 from news.models import News
 
 BATCH_DELAY = 1
@@ -25,7 +26,8 @@ class Command(BaseCommand):
         gagal = 0
 
         for i, news in enumerate(news_list, start=1):
-            image_url = self.fetch_og_image(news.url)
+            real_url = self.resolve_real_url(news.url)
+            image_url = self.fetch_og_image(real_url)
 
             if image_url:
                 news.image_url = image_url
@@ -40,6 +42,15 @@ class Command(BaseCommand):
 
         self.stdout.write("\n" + "=" * 50)
         self.stdout.write(self.style.SUCCESS(f"Selesai. {berhasil} berita dapat gambar, {gagal} tidak ditemukan."))
+
+    def resolve_real_url(self, google_url):
+        try:
+            result = new_decoderv1(google_url, interval=1)
+            if result.get('status') and result.get('decoded_url'):
+                return result['decoded_url']
+        except Exception as e:
+            self.stdout.write(self.style.WARNING(f"   Gagal decode URL asli: {e}"))
+        return google_url
 
     def fetch_og_image(self, url):
         try:
@@ -58,7 +69,11 @@ class Command(BaseCommand):
                 )
 
             if match:
-                return match.group(1)
+                image_found = match.group(1)
+                # Safety check: skip kalau ternyata masih gambar milik Google, bukan situs berita asli
+                if 'gstatic.com' in image_found or 'google.com' in image_found:
+                    return None
+                return image_found
         except Exception:
             pass
         return None
