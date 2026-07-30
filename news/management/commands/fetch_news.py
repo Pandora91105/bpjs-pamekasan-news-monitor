@@ -2,6 +2,8 @@ import os
 import json
 import time
 import feedparser
+from django.core.mail import send_mail
+from django.conf import settings
 from datetime import datetime, timezone
 from urllib.parse import quote
 from django.core.management.base import BaseCommand
@@ -44,6 +46,7 @@ class Command(BaseCommand):
 
         saved_count = 0
         skipped_irrelevant = 0
+        newly_saved_news = []
 
         # Proses per batch (10 berita sekaligus per panggilan AI)
         for i in range(0, len(new_entries), BATCH_SIZE):
@@ -68,7 +71,7 @@ class Command(BaseCommand):
                 real_url = self.resolve_real_url(entry.link)
                 image_url = self.fetch_og_image(real_url)
 
-                News.objects.create(
+                news_obj = News.objects.create(
                     title=entry.title,
                     source=entry.get('source', {}).get('title', 'Tidak diketahui'),
                     url=entry.link,
@@ -79,6 +82,7 @@ class Command(BaseCommand):
                     sentiment=sentiment,
                 )
                 saved_count += 1
+                newly_saved_news.append(news_obj)
                 self.stdout.write(self.style.SUCCESS(f"  [DISIMPAN - {sentiment.upper()}] {entry.title}"))
 
             time.sleep(5)  # jeda antar batch, jaga-jaga rate limit
@@ -87,6 +91,35 @@ class Command(BaseCommand):
         self.stdout.write(self.style.SUCCESS(f"Selesai. {saved_count} berita baru disimpan."))
         self.stdout.write(f"{skipped_duplicate} berita dilewati (sudah ada).")
         self.stdout.write(f"{skipped_irrelevant} berita dilewati (tidak relevan menurut AI).")
+
+        negative_news = [n for n in newly_saved_news if n.sentiment == 'negatif']
+
+        if negative_news:
+            self.send_notification_email(negative_news)
+
+    def send_notification_email(self, news_list):
+        subject = f"[BPJS Pamekasan News Monitor] {len(news_list)} Berita Negatif Perlu Perhatian"
+
+        body_lines = [f"Ditemukan {len(news_list)} berita bersentimen NEGATIF terkait BPJS Kesehatan kantor Cabang Pamekasan:\n"]
+        for news in news_list:
+            body_lines.append(f"- {news.title}")
+            body_lines.append(f"  Sumber: {news.source}")
+            body_lines.append(f"  Link: {news.url}\n")
+
+        body_lines.append("\nBuka dashboard untuk melihat selengkapnya.")
+        body = "\n".join(body_lines)
+
+        try:
+            send_mail(
+                subject,
+                body,
+                settings.EMAIL_HOST_USER,
+                [settings.NOTIFICATION_EMAIL],
+                fail_silently=False,
+            )
+            self.stdout.write(self.style.SUCCESS("Email notifikasi berhasil dikirim."))
+        except Exception as e:
+            self.stdout.write(self.style.WARNING(f"Gagal kirim email notifikasi: {e}"))
 
     def check_relevance_batch(self, batch, max_retries=3):
         items_text = ""
@@ -136,7 +169,7 @@ class Command(BaseCommand):
     def fetch_og_image(self, url):
         try:
             headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'}
-            response = requests.get(url, headers=headers, timeout=6, allow_redirects=True)
+            response = requests.get(url, headers=headers, timeout=8, allow_redirects=True)
             html = response.text
 
             match = re.search(
@@ -150,7 +183,19 @@ class Command(BaseCommand):
                 )
 
             if match:
-                return match.group(1)
+                image_found = match.group(1)
+                if 'gstatic.com' in image_found or 'google.com' in image_found:
+                    return None
+                return image_found
         except Exception:
             pass
         return None
+    
+    def resolve_real_url(self, google_url):
+        try:
+            result = new_decoderv1(google_url, interval=1)
+            if result.get('status') and result.get('decoded_url'):
+                return result['decoded_url']
+        except Exception as e:
+            self.stdout.write(self.style.WARNING(f"   Gagal decode URL asli: {e}"))
+        return google_url
