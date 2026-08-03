@@ -21,6 +21,7 @@ class News(models.Model):
 
     is_relevant = models.BooleanField(default=False)
     sentiment = models.CharField(max_length=10, choices=SENTIMENT_CHOICES, blank=True, null=True)
+    notif_read = models.BooleanField(default=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
 
     fetched_at = models.DateTimeField(auto_now_add=True)

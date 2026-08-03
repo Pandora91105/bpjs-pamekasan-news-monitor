@@ -71,7 +71,7 @@ class Command(BaseCommand):
                 real_url = self.resolve_real_url(entry.link)
                 image_url = self.fetch_og_image(real_url)
 
-                news_obj = News.objects.create(
+                News.objects.create(
                     title=entry.title,
                     source=entry.get('source', {}).get('title', 'Tidak diketahui'),
                     url=entry.link,
@@ -80,6 +80,7 @@ class Command(BaseCommand):
                     published_date=published_date,
                     is_relevant=True,
                     sentiment=sentiment,
+                    notif_read=(sentiment != 'negatif'),
                 )
                 saved_count += 1
                 newly_saved_news.append(news_obj)

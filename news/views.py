@@ -17,6 +17,8 @@ import json
 import calendar     
 import html as html_module
 from django.core.paginator import Paginator
+from django.views import View
+from django.http import JsonResponse
 
 class CustomLoginView(LoginView):
     template_name = 'login.html'
@@ -173,3 +175,8 @@ class TriggerFetchView(View):
             import traceback
             traceback.print_exc()
             return HttpResponse(f'Error: {e}', status=500)
+
+class MarkNotificationsReadView(LoginRequiredMixin, View):
+    def post(self, request):
+        News.objects.filter(sentiment='negatif', notif_read=False).update(notif_read=True)
+        return JsonResponse({'status': 'ok'})
