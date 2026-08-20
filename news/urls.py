@@ -9,4 +9,5 @@ urlpatterns = [
     path('analisis/', views.AnalisisView.as_view(), name='analisis'),
     path('trigger-fetch/', views.TriggerFetchView.as_view(), name='trigger_fetch'),
     path('notifikasi/mark-read/', views.MarkNotificationsReadView.as_view(), name='mark_notifications_read'),
+    path('media-sosial/', views.SocialMediaView.as_view(), name='social_media'),
 ]

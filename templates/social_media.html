@@ -1,0 +1,163 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Media Sosial - BPJS Pamekasan</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: Arial, sans-serif; }
+        body { background: #F5F5F4; }
+        .layout { display: flex; min-height: 100vh; }
+
+        .sidebar { width: 180px; background: #00A651; flex-shrink: 0; padding: 20px 0; display: flex; flex-direction: column; gap: 4px; }
+        .sidebar a { display: flex; align-items: center; gap: 10px; padding: 10px 20px; color: #ffffff; text-decoration: none; font-size: 14px; }
+        .sidebar a.inactive { color: #D9F0E3; }
+        .sidebar a:hover { background: rgba(255,255,255,0.1); }
+
+        .main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+
+        .header { background: #FFFFFF; border-bottom: 1px solid #E5E3DC; padding: 14px 24px; display: flex; align-items: center; justify-content: space-between; }
+        .header-left { display: flex; align-items: center; gap: 10px; }
+        .logo-badge { width: 34px; height: 34px; border-radius: 50%; background: #00A651; display: flex; align-items: center; justify-content: center; color: white; font-size: 16px; }
+        .header-title { font-weight: 500; font-size: 14px; margin: 0; }
+        .header-subtitle { font-size: 11px; color: #6B6B6B; margin: 0; }
+        .header-right a { font-size: 12px; color: #1B5FAA; text-decoration: none; margin-left: 16px; }
+
+        .content { padding: 24px; overflow-y: auto; overflow-x: hidden; }
+
+        .dummy-banner {
+            background: #FFF4E5; border: 1px solid #F0C674; border-radius: 10px;
+            padding: 14px 18px; margin-bottom: 20px; display: flex; align-items: center; gap: 10px;
+            font-size: 13px; color: #7A5A00;
+        }
+
+        .stats-row { display: flex; gap: 14px; margin-bottom: 20px; }
+        .stat-card { flex: 1; background: #FFFFFF; border: 1px solid #E5E3DC; border-radius: 10px; padding: 16px; }
+        .stat-label { font-size: 12px; color: #6B6B6B; margin-bottom: 6px; }
+        .stat-value { font-size: 22px; font-weight: 600; }
+
+        .filter-row { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
+        .filter-btn {
+            font-size: 13px; padding: 6px 14px; border-radius: 8px; border: 1px solid #E5E3DC;
+            background: #FFFFFF; color: #6B6B6B; text-decoration: none;
+        }
+        .filter-btn.active { background: #00A651; color: white; border-color: #00A651; }
+
+        .post-card {
+            background: #FFFFFF; border: 1px solid #E5E3DC; border-radius: 10px;
+            padding: 16px; margin-bottom: 12px;
+        }
+        .post-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+        .post-platform {
+            font-size: 11px; padding: 2px 10px; border-radius: 6px; font-weight: 500;
+        }
+        .platform-instagram { background: #FCE4F1; color: #C13584; }
+        .platform-tiktok { background: #E5E5E5; color: #000000; }
+        .post-username { font-size: 13px; font-weight: 500; color: #1B1B1B; }
+        .post-caption { font-size: 13px; color: #333; line-height: 1.5; margin-bottom: 10px; }
+        .post-meta { font-size: 12px; color: #9B9990; display: flex; gap: 14px; align-items: center; }
+        .sentiment-tag { font-size: 11px; padding: 3px 10px; border-radius: 6px; font-weight: 500; margin-left: auto; }
+        .tag-positif { background: #EAF3DE; color: #3B6D11; }
+        .tag-negatif { background: #FDECEA; color: #B3261E; }
+
+        .empty-state { background: #FFFFFF; border: 1px dashed #D6D3C9; border-radius: 10px; padding: 30px; text-align: center; color: #9B9990; font-size: 13px; }
+    </style>
+</head>
+<body>
+    <div class="layout">
+        <div class="sidebar">
+            <a href="{% url 'dashboard' %}" class="inactive">&#127968; Home</a>
+            <a href="{% url 'analisis' %}" class="inactive">&#128202; Analisis</a>
+            <a href="{% url 'social_media' %}">&#128241; Media Sosial</a>
+        </div>
+
+        <div class="main">
+            <div class="header">
+                <div class="header-left">
+                    <div class="logo-badge">&#128737;</div>
+                    <div>
+                        <p class="header-title">BPJS Kesehatan</p>
+                        <p class="header-subtitle">Badan Penyelenggara Jaminan Sosial</p>
+                    </div>
+                </div>
+                <div class="header-right">
+                    <a href="{% url 'logout' %}">Logout</a>
+                </div>
+            </div>
+
+            <div class="content">
+                <div class="dummy-banner">
+                    &#9888; <strong>Data Simulasi/Contoh</strong> — Fitur ini menggunakan data dummy sementara, menunggu proses persetujuan resmi akses API Instagram/TikTok selesai. Data yang ditampilkan bukan data asli.
+                </div>
+
+                <div class="stats-row">
+                    <div class="stat-card">
+                        <div class="stat-label">Total Post</div>
+                        <div class="stat-value">{{ total_semua }}</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Instagram</div>
+                        <div class="stat-value">{{ total_instagram }}</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">TikTok</div>
+                        <div class="stat-value">{{ total_tiktok }}</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label" style="color:#3B6D11;">Positif</div>
+                        <div class="stat-value" style="color:#3B6D11;">{{ total_positif }}</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label" style="color:#B3261E;">Negatif</div>
+                        <div class="stat-value" style="color:#B3261E;">{{ total_negatif }}</div>
+                    </div>
+                </div>
+
+                <div class="filter-row">
+                    <a href="?platform=semua&sentiment={{ sentiment_aktif }}" class="filter-btn {% if platform_aktif == 'semua' %}active{% endif %}">Semua Platform</a>
+                    <a href="?platform=instagram&sentiment={{ sentiment_aktif }}" class="filter-btn {% if platform_aktif == 'instagram' %}active{% endif %}">Instagram</a>
+                    <a href="?platform=tiktok&sentiment={{ sentiment_aktif }}" class="filter-btn {% if platform_aktif == 'tiktok' %}active{% endif %}">TikTok</a>
+                    <span style="width:1px; background:#E5E3DC; margin: 0 6px;"></span>
+                    <a href="?platform={{ platform_aktif }}&sentiment=semua" class="filter-btn {% if sentiment_aktif == 'semua' %}active{% endif %}">Semua Sentimen</a>
+                    <a href="?platform={{ platform_aktif }}&sentiment=positif" class="filter-btn {% if sentiment_aktif == 'positif' %}active{% endif %}">Positif</a>
+                    <a href="?platform={{ platform_aktif }}&sentiment=negatif" class="filter-btn {% if sentiment_aktif == 'negatif' %}active{% endif %}">Negatif</a>
+                </div>
+
+                {% if posts %}
+                    {% for post in posts %}
+                    <div class="post-card">
+                        <div class="post-header">
+                            <div>
+                                <span class="post-platform platform-{{ post.platform }}">{{ post.get_platform_display }}</span>
+                                <span class="post-username">@{{ post.username }}</span>
+                            </div>
+                            <span class="sentiment-tag tag-{{ post.sentiment }}">{{ post.get_sentiment_display }}</span>
+                        </div>
+                        <div class="post-caption">{{ post.caption }}</div>
+                        <div class="post-meta">
+                            <span>&#10084; {{ post.likes_count }}</span>
+                            <span>&#128172; {{ post.comments_count }}</span>
+                            <span>{{ post.posted_date|date:"d M Y" }}</span>
+                        </div>
+                    </div>
+                    {% endfor %}
+
+                    {% if posts.has_other_pages %}
+                    <div style="display: flex; justify-content: center; align-items: center; gap: 10px; margin-top: 16px;">
+                        {% if posts.has_previous %}
+                        <a href="?platform={{ platform_aktif }}&sentiment={{ sentiment_aktif }}&page={{ posts.previous_page_number }}" style="font-size: 13px; color: #1B5FAA; text-decoration: none; padding: 6px 12px; border: 1px solid #E5E3DC; border-radius: 6px;">&larr; Sebelumnya</a>
+                        {% endif %}
+                        <span style="font-size: 13px; color: #6B6B6B;">Halaman {{ posts.number }} dari {{ posts.paginator.num_pages }}</span>
+                        {% if posts.has_next %}
+                        <a href="?platform={{ platform_aktif }}&sentiment={{ sentiment_aktif }}&page={{ posts.next_page_number }}" style="font-size: 13px; color: #1B5FAA; text-decoration: none; padding: 6px 12px; border: 1px solid #E5E3DC; border-radius: 6px;">Selanjutnya &rarr;</a>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                {% else %}
+                    <div class="empty-state">Tidak ada post untuk filter ini.</div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</body>
+</html>

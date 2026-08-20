@@ -1,3 +1,9 @@
+import os
+import threading
+import json
+import calendar     
+import html as html_module
+
 from django.contrib.auth.views import LoginView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import TemplateView, View
@@ -11,14 +17,10 @@ from django.core.management import call_command
 from django.http import HttpResponse
 from django.views import View
 from django.utils.html import strip_tags
-import os
-import threading
-import json
-import calendar     
-import html as html_module
 from django.core.paginator import Paginator
 from django.views import View
 from django.http import JsonResponse
+from .models import SocialMediaPost
 
 class CustomLoginView(LoginView):
     template_name = 'login.html'
@@ -180,3 +182,37 @@ class MarkNotificationsReadView(LoginRequiredMixin, View):
     def post(self, request):
         News.objects.filter(sentiment='negatif', notif_read=False).update(notif_read=True)
         return JsonResponse({'status': 'ok'})
+
+class SocialMediaView(LoginRequiredMixin, TemplateView):
+    template_name = 'social_media.html'
+    login_url = 'login'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        platform_filter = self.request.GET.get('platform', 'semua')
+        sentiment_filter = self.request.GET.get('sentiment', 'semua')
+
+        posts = SocialMediaPost.objects.all()
+
+        context['total_semua'] = posts.count()
+        context['total_instagram'] = posts.filter(platform='instagram').count()
+        context['total_tiktok'] = posts.filter(platform='tiktok').count()
+        context['total_positif'] = posts.filter(sentiment='positif').count()
+        context['total_negatif'] = posts.filter(sentiment='negatif').count()
+
+        if platform_filter != 'semua':
+            posts = posts.filter(platform=platform_filter)
+
+        if sentiment_filter != 'semua':
+            posts = posts.filter(sentiment=sentiment_filter)
+
+        posts_sorted = posts.order_by('-posted_date')
+        paginator = Paginator(posts_sorted, 10)
+        page_number = self.request.GET.get('page', 1)
+        context['posts'] = paginator.get_page(page_number)
+
+        context['platform_aktif'] = platform_filter
+        context['sentiment_aktif'] = sentiment_filter
+
+        return context
