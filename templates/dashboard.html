@@ -22,6 +22,25 @@
         .sidebar a.inactive { color: #D9F0E3; }
         .sidebar a:hover { background: rgba(255,255,255,0.1); }
 
+        .sidebar-parent {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 10px 20px; color: #ffffff; font-size: 14px; cursor: pointer;
+        }
+        .sidebar-parent:hover { background: rgba(255,255,255,0.1); }
+        .chevron { transition: transform 0.2s ease; font-size: 11px; }
+        .chevron.open { transform: rotate(180deg); }
+        .sidebar-submenu {
+            display: flex; flex-direction: column; overflow: hidden;
+            max-height: 0; transition: max-height 0.25s ease;
+        }
+        .sidebar-submenu.open { max-height: 120px; }
+        .sub-link {
+            padding: 8px 20px 8px 44px; color: #ffffff; text-decoration: none; font-size: 13px;
+        }
+        .sub-link.inactive { color: #D9F0E3; }
+        .sub-link:hover { background: rgba(255,255,255,0.1); }
+
+
         .main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
 
         .header {
@@ -91,9 +110,16 @@
 <body>
     <div class="layout">
         <div class="sidebar">
-            <a href="{% url 'dashboard' %}">&#127968; Home</a>
-            <a href="{% url 'analisis' %}" class="inactive">&#128202; Analisis</a>
-            <a href="{% url 'social_media' %}" class="inactive">&#128241; Media Sosial</a>
+            <a href="{% url 'dashboard' %}" class="{% if request.resolver_match.url_name != 'dashboard' %}inactive{% endif %}">&#127968; Home</a>
+
+            <div class="sidebar-parent" onclick="toggleAnalisisMenu()">
+                <span>&#128202; Analisis</span>
+                <span id="analisisChevron" class="chevron">&#9662;</span>
+            </div>
+            <div id="analisisSubmenu" class="sidebar-submenu">
+                <a href="{% url 'analisis' %}" class="sub-link {% if request.resolver_match.url_name != 'analisis' %}inactive{% endif %}">Berita</a>
+                <a href="{% url 'social_media' %}" class="sub-link {% if request.resolver_match.url_name != 'social_media' %}inactive{% endif %}">Media Sosial</a>
+            </div>
         </div>
 
         <div class="main">
@@ -212,6 +238,21 @@
                 dropdown.style.display = 'none';
             }
         });
+    });
+    </script>
+
+    <script>
+    function toggleAnalisisMenu() {
+        document.getElementById('analisisSubmenu').classList.toggle('open');
+        document.getElementById('analisisChevron').classList.toggle('open');
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const currentUrl = "{{ request.resolver_match.url_name }}";
+        if (currentUrl === 'analisis' || currentUrl === 'social_media') {
+            document.getElementById('analisisSubmenu').classList.add('open');
+            document.getElementById('analisisChevron').classList.add('open');
+        }
     });
     </script>
 </body>
