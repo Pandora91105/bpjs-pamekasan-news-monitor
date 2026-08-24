@@ -213,7 +213,7 @@ STOPWORDS = {
 def detect_topics(caption):
     caption_lower = caption.lower()
     matched = [topic for topic, keywords in TOPIC_KEYWORDS.items()
-               if any(kw in caption_lower for kw in keywords)]
+            if any(kw in caption_lower for kw in keywords)]
     return matched if matched else ['Lainnya']
 
 
