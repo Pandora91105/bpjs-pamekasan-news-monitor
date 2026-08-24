@@ -3,8 +3,8 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <link rel="icon" type="image/png" href="{% static 'img/favicon.png' %}">
-    <title>Media Sosial - BPJS Pamekasan</title>
+    <title>Dashboard Media Sosial - BPJS Pamekasan</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: Arial, sans-serif; }
         body { background: #F5F5F4; }
@@ -15,24 +15,6 @@
         .sidebar a.inactive { color: #D9F0E3; }
         .sidebar a:hover { background: rgba(255,255,255,0.1); }
 
-        .sidebar-parent {
-            display: flex; align-items: center; justify-content: space-between;
-            padding: 10px 20px; color: #ffffff; font-size: 14px; cursor: pointer;
-        }
-        .sidebar-parent:hover { background: rgba(255,255,255,0.1); }
-        .chevron { transition: transform 0.2s ease; font-size: 18px; font-weight: bold; }
-        .chevron.open { transform: rotate(180deg); }
-        .sidebar-submenu {
-            display: flex; flex-direction: column; overflow: hidden;
-            max-height: 0; transition: max-height 0.25s ease;
-        }
-        .sidebar-submenu.open { max-height: 120px; }
-        .sub-link {
-            padding: 8px 20px 8px 44px; color: #ffffff; text-decoration: none; font-size: 13px;
-        }
-        .sub-link.inactive { color: #D9F0E3; }
-        .sub-link:hover { background: rgba(255,255,255,0.1); }
-
         .main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
 
         .header { background: #FFFFFF; border-bottom: 1px solid #E5E3DC; padding: 14px 24px; display: flex; align-items: center; justify-content: space-between; }
@@ -40,7 +22,7 @@
         .logo-badge { width: 34px; height: 34px; border-radius: 50%; background: #00A651; display: flex; align-items: center; justify-content: center; color: white; font-size: 16px; }
         .header-title { font-weight: 500; font-size: 14px; margin: 0; }
         .header-subtitle { font-size: 11px; color: #6B6B6B; margin: 0; }
-        .header-right a { font-size: 12px; color: #1B5FAA; text-decoration: none; margin-left: 16px; }
+        .header-right a { font-size: 12px; color: #1B5FAA; text-decoration: none; }
 
         .content { padding: 24px; overflow-y: auto; overflow-x: hidden; }
 
@@ -50,34 +32,92 @@
             font-size: 13px; color: #7A5A00;
         }
 
-        .stats-row { display: flex; gap: 14px; margin-bottom: 20px; }
-        .stat-card { flex: 1; background: #FFFFFF; border: 1px solid #E5E3DC; border-radius: 10px; padding: 16px; }
-        .stat-label { font-size: 12px; color: #6B6B6B; margin-bottom: 6px; }
-        .stat-value { font-size: 22px; font-weight: 600; }
-
-        .filter-row { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
-        .filter-btn {
-            font-size: 13px; padding: 6px 14px; border-radius: 8px; border: 1px solid #E5E3DC;
-            background: #FFFFFF; color: #6B6B6B; text-decoration: none;
-        }
-        .filter-btn.active { background: #00A651; color: white; border-color: #00A651; }
-
-        .post-card {
+        /* ===== FILTER BAR ===== */
+        .filter-bar {
             background: #FFFFFF; border: 1px solid #E5E3DC; border-radius: 10px;
-            padding: 16px; margin-bottom: 12px;
+            padding: 16px 18px; margin-bottom: 20px;
         }
-        .post-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
-        .post-platform {
-            font-size: 11px; padding: 2px 10px; border-radius: 6px; font-weight: 500;
+        .filter-title { font-size: 13px; font-weight: 500; margin-bottom: 10px; color: #333; }
+        .filter-form { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+        .filter-form select, .filter-form input[type=date] {
+            font-size: 12px; padding: 6px 10px; border-radius: 8px; border: 1px solid #D6D3C9;
+            background: #FFFFFF;
         }
+        .filter-form button {
+            font-size: 12px; padding: 7px 16px; border-radius: 8px; border: none;
+            background: #00A651; color: white; cursor: pointer;
+        }
+        .filter-reset { font-size: 12px; color: #B3261E; text-decoration: none; padding: 7px 10px; }
+
+        /* ===== SECTION ===== */
+        .section { margin-bottom: 26px; }
+        .section-title { font-size: 15px; font-weight: 600; margin-bottom: 12px; color: #1a1a1a; display: flex; align-items: center; gap: 8px; }
+        .section-subtitle { font-size: 12px; color: #6B6B6B; margin-bottom: 14px; margin-top: -8px; }
+
+        /* ===== KPI CARDS ===== */
+        .kpi-row { display: flex; gap: 14px; flex-wrap: wrap; }
+        .kpi-card { flex: 1; min-width: 150px; background: #FFFFFF; border: 1px solid #E5E3DC; border-radius: 12px; padding: 18px; }
+        .kpi-label { font-size: 12px; color: #6B6B6B; margin-bottom: 8px; }
+        .kpi-value { font-size: 26px; font-weight: 700; }
+        .kpi-positif .kpi-value { color: #3B6D11; }
+        .kpi-negatif .kpi-value { color: #B3261E; }
+
+        /* ===== CARD GENERIC ===== */
+        .card { background: #FFFFFF; border: 1px solid #E5E3DC; border-radius: 12px; padding: 20px; }
+        .two-col { display: flex; gap: 16px; flex-wrap: wrap; }
+        .two-col > div { flex: 1; min-width: 300px; }
+
+        /* ===== CHART BOX ===== */
+        .chart-box-sm { height: 200px; }
+        .chart-box-md { height: 260px; }
+
+        /* ===== LEGEND ===== */
+        .legend-list { display: flex; flex-direction: column; gap: 8px; font-size: 13px; margin-top: 14px; }
+        .legend-item { display: flex; align-items: center; gap: 8px; }
+        .legend-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+
+        /* ===== PLATFORM COMPARISON ===== */
+        .platform-compare-row { display: flex; gap: 16px; }
+        .platform-compare-card { flex: 1; border: 1px solid #E5E3DC; border-radius: 10px; padding: 16px; }
+        .platform-compare-header { font-size: 13px; font-weight: 600; margin-bottom: 10px; }
+        .platform-compare-stat { display: flex; justify-content: space-between; font-size: 12px; padding: 5px 0; border-bottom: 1px solid #F0EFE9; }
+
+        /* ===== TABLE GENERIC ===== */
+        table.data-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        table.data-table th { text-align: left; padding: 8px 6px; color: #6B6B6B; font-weight: 500; border-bottom: 1px solid #E5E3DC; }
+        table.data-table td { padding: 8px 6px; border-bottom: 1px solid #F0EFE9; }
+
+        .badge { font-size: 11px; padding: 2px 8px; border-radius: 6px; font-weight: 500; display: inline-block; }
+        .badge-negatif { background: #FDECEA; color: #B3261E; }
+        .badge-positif { background: #EAF3DE; color: #3B6D11; }
+        .badge-high { background: #FDECEA; color: #B3261E; }
+        .badge-medium { background: #FFF4E5; color: #92620A; }
+        .badge-low { background: #EFEFEC; color: #6B6B6B; }
+        .badge-topic { background: #E6F1FB; color: #1B5FAA; margin-right: 4px; margin-bottom: 4px; }
+
+        /* ===== KEYWORD TAGS ===== */
+        .keyword-cloud { display: flex; flex-wrap: wrap; gap: 8px; }
+        .keyword-tag { font-size: 12px; padding: 5px 12px; border-radius: 20px; background: #F0EFE9; color: #333; }
+        .keyword-tag .count { color: #9B9990; margin-left: 4px; }
+
+        /* ===== ALERTS ===== */
+        .alert-box { display: flex; align-items: flex-start; gap: 10px; padding: 12px 14px; border-radius: 10px; margin-bottom: 10px; font-size: 13px; }
+        .alert-warning { background: #FFF4E5; border: 1px solid #F0C674; color: #7A5A00; }
+        .alert-empty { background: #EAF3DE; border: 1px solid #B7D89B; color: #3B6D11; }
+
+        /* ===== POST CARD ===== */
+        .post-card { background: #FFFFFF; border: 1px solid #E5E3DC; border-radius: 10px; padding: 16px; margin-bottom: 12px; }
+        .post-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; flex-wrap: wrap; gap: 6px; }
+        .post-header-left { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+        .post-platform { font-size: 11px; padding: 2px 10px; border-radius: 6px; font-weight: 500; }
         .platform-instagram { background: #FCE4F1; color: #C13584; }
         .platform-tiktok { background: #E5E5E5; color: #000000; }
         .post-username { font-size: 13px; font-weight: 500; color: #1B1B1B; }
         .post-caption { font-size: 13px; color: #333; line-height: 1.5; margin-bottom: 10px; }
-        .post-meta { font-size: 12px; color: #9B9990; display: flex; gap: 14px; align-items: center; }
-        .sentiment-tag { font-size: 11px; padding: 3px 10px; border-radius: 6px; font-weight: 500; margin-left: auto; }
-        .tag-positif { background: #EAF3DE; color: #3B6D11; }
-        .tag-negatif { background: #FDECEA; color: #B3261E; }
+        .post-topics { margin-bottom: 8px; }
+        .post-meta { font-size: 12px; color: #9B9990; display: flex; gap: 14px; align-items: center; flex-wrap: wrap; }
+        .post-source-link { color: #1B5FAA; text-decoration: none; }
+        .post-badges { display: flex; gap: 6px; align-items: center; }
 
         .empty-state { background: #FFFFFF; border: 1px dashed #D6D3C9; border-radius: 10px; padding: 30px; text-align: center; color: #9B9990; font-size: 13px; }
     </style>
@@ -85,22 +125,15 @@
 <body>
     <div class="layout">
         <div class="sidebar">
-            <a href="{% url 'dashboard' %}" class="{% if request.resolver_match.url_name != 'dashboard' %}inactive{% endif %}">&#127968; Home</a>
-
-            <div class="sidebar-parent" onclick="toggleAnalisisMenu()">
-                <span>&#128202; Analisis</span>
-                <span id="analisisChevron" class="chevron">&#9662;</span>
-            </div>
-            <div id="analisisSubmenu" class="sidebar-submenu">
-                <a href="{% url 'analisis' %}" class="sub-link {% if request.resolver_match.url_name != 'analisis' %}inactive{% endif %}">Berita</a>
-                <a href="{% url 'social_media' %}" class="sub-link {% if request.resolver_match.url_name != 'social_media' %}inactive{% endif %}">Media Sosial</a>
-            </div>
+            <a href="{% url 'dashboard' %}" class="inactive">&#127968; Home</a>
+            <a href="{% url 'analisis' %}" class="inactive">&#128202; Analisis</a>
+            <a href="{% url 'social_media' %}">&#128241; Media Sosial</a>
         </div>
 
         <div class="main">
             <div class="header">
                 <div class="header-left">
-                     <div class="logo-badge" style="background: transparent;"><img src="{% static 'img/logo-bpjs.png' %}" alt="Logo BPJS Kesehatan" style="width: 100%; height: 100%; object-fit: contain;"></div>
+                    <div class="logo-badge">&#128737;</div>
                     <div>
                         <p class="header-title">BPJS Kesehatan</p>
                         <p class="header-subtitle">Badan Penyelenggara Jaminan Sosial</p>
@@ -113,92 +146,351 @@
 
             <div class="content">
                 <div class="dummy-banner">
-                    &#9888; <strong>Data Simulasi/Contoh</strong> — Fitur ini menggunakan data dummy sementara, menunggu proses persetujuan resmi akses API Instagram/TikTok selesai. Data yang ditampilkan bukan data asli.
+                    &#9888; <strong>Data Simulasi/Contoh</strong> — Dashboard ini menggunakan data dummy sementara, menunggu proses persetujuan resmi akses API Instagram/TikTok selesai. Seluruh angka dan insight di halaman ini bukan data asli.
                 </div>
 
-                <div class="stats-row">
-                    <div class="stat-card">
-                        <div class="stat-label">Total Post</div>
-                        <div class="stat-value">{{ total_semua }}</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-label">Instagram</div>
-                        <div class="stat-value">{{ total_instagram }}</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-label">TikTok</div>
-                        <div class="stat-value">{{ total_tiktok }}</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-label" style="color:#3B6D11;">Positif</div>
-                        <div class="stat-value" style="color:#3B6D11;">{{ total_positif }}</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-label" style="color:#B3261E;">Negatif</div>
-                        <div class="stat-value" style="color:#B3261E;">{{ total_negatif }}</div>
-                    </div>
-                </div>
+                <!-- ===== FILTER BAR ===== -->
+                <div class="filter-bar">
+                    <div class="filter-title">Filter Analisis</div>
+                    <form method="get" class="filter-form">
+                        <select name="period" onchange="this.form.submit()">
+                            <option value="hari_ini" {% if period_aktif == 'hari_ini' %}selected{% endif %}>Hari ini</option>
+                            <option value="7hari" {% if period_aktif == '7hari' %}selected{% endif %}>7 hari terakhir</option>
+                            <option value="30hari" {% if period_aktif == '30hari' %}selected{% endif %}>30 hari terakhir</option>
+                            <option value="bulan_ini" {% if period_aktif == 'bulan_ini' %}selected{% endif %}>Bulan ini</option>
+                            <option value="bulan_lalu" {% if period_aktif == 'bulan_lalu' %}selected{% endif %}>Bulan lalu</option>
+                            <option value="custom" {% if period_aktif == 'custom' %}selected{% endif %}>Custom range</option>
+                        </select>
 
-                <div class="filter-row">
-                    <a href="?platform=semua&sentiment={{ sentiment_aktif }}" class="filter-btn {% if platform_aktif == 'semua' %}active{% endif %}">Semua Platform</a>
-                    <a href="?platform=instagram&sentiment={{ sentiment_aktif }}" class="filter-btn {% if platform_aktif == 'instagram' %}active{% endif %}">Instagram</a>
-                    <a href="?platform=tiktok&sentiment={{ sentiment_aktif }}" class="filter-btn {% if platform_aktif == 'tiktok' %}active{% endif %}">TikTok</a>
-                    <span style="width:1px; background:#E5E3DC; margin: 0 6px;"></span>
-                    <a href="?platform={{ platform_aktif }}&sentiment=semua" class="filter-btn {% if sentiment_aktif == 'semua' %}active{% endif %}">Semua Sentimen</a>
-                    <a href="?platform={{ platform_aktif }}&sentiment=positif" class="filter-btn {% if sentiment_aktif == 'positif' %}active{% endif %}">Positif</a>
-                    <a href="?platform={{ platform_aktif }}&sentiment=negatif" class="filter-btn {% if sentiment_aktif == 'negatif' %}active{% endif %}">Negatif</a>
-                </div>
-
-                {% if posts %}
-                    {% for post in posts %}
-                    <div class="post-card">
-                        <div class="post-header">
-                            <div>
-                                <span class="post-platform platform-{{ post.platform }}">{{ post.get_platform_display }}</span>
-                                <span class="post-username">@{{ post.username }}</span>
-                            </div>
-                            <span class="sentiment-tag tag-{{ post.sentiment }}">{{ post.get_sentiment_display }}</span>
-                        </div>
-                        <div class="post-caption">{{ post.caption }}</div>
-                        <div class="post-meta">
-                            <span>&#10084; {{ post.likes_count }}</span>
-                            <span>&#128172; {{ post.comments_count }}</span>
-                            <span>{{ post.posted_date|date:"d M Y" }}</span>
-                        </div>
-                    </div>
-                    {% endfor %}
-
-                    {% if posts.has_other_pages %}
-                    <div style="display: flex; justify-content: center; align-items: center; gap: 10px; margin-top: 16px;">
-                        {% if posts.has_previous %}
-                        <a href="?platform={{ platform_aktif }}&sentiment={{ sentiment_aktif }}&page={{ posts.previous_page_number }}" style="font-size: 13px; color: #1B5FAA; text-decoration: none; padding: 6px 12px; border: 1px solid #E5E3DC; border-radius: 6px;">&larr; Sebelumnya</a>
+                        {% if period_aktif == 'custom' %}
+                        <input type="date" name="start_date" value="{{ start_date }}">
+                        <input type="date" name="end_date" value="{{ end_date }}">
                         {% endif %}
-                        <span style="font-size: 13px; color: #6B6B6B;">Halaman {{ posts.number }} dari {{ posts.paginator.num_pages }}</span>
-                        {% if posts.has_next %}
-                        <a href="?platform={{ platform_aktif }}&sentiment={{ sentiment_aktif }}&page={{ posts.next_page_number }}" style="font-size: 13px; color: #1B5FAA; text-decoration: none; padding: 6px 12px; border: 1px solid #E5E3DC; border-radius: 6px;">Selanjutnya &rarr;</a>
-                        {% endif %}
+
+                        <select name="platform" onchange="this.form.submit()">
+                            <option value="semua" {% if platform_aktif == 'semua' %}selected{% endif %}>Semua Platform</option>
+                            <option value="instagram" {% if platform_aktif == 'instagram' %}selected{% endif %}>Instagram</option>
+                            <option value="tiktok" {% if platform_aktif == 'tiktok' %}selected{% endif %}>TikTok</option>
+                        </select>
+
+                        <select name="sentiment" onchange="this.form.submit()">
+                            <option value="semua" {% if sentiment_aktif == 'semua' %}selected{% endif %}>Semua Sentimen</option>
+                            <option value="positif" {% if sentiment_aktif == 'positif' %}selected{% endif %}>Positif</option>
+                            <option value="negatif" {% if sentiment_aktif == 'negatif' %}selected{% endif %}>Negatif</option>
+                        </select>
+
+                        <select name="topic" onchange="this.form.submit()">
+                            <option value="semua" {% if topic_aktif == 'semua' %}selected{% endif %}>Semua Topik</option>
+                            {% for t in topic_list %}
+                            <option value="{{ t }}" {% if topic_aktif == t %}selected{% endif %}>{{ t }}</option>
+                            {% endfor %}
+                        </select>
+
+                        <select name="priority" onchange="this.form.submit()">
+                            <option value="semua" {% if priority_aktif == 'semua' %}selected{% endif %}>Semua Prioritas</option>
+                            <option value="HIGH" {% if priority_aktif == 'HIGH' %}selected{% endif %}>High</option>
+                            <option value="MEDIUM" {% if priority_aktif == 'MEDIUM' %}selected{% endif %}>Medium</option>
+                            <option value="LOW" {% if priority_aktif == 'LOW' %}selected{% endif %}>Low</option>
+                        </select>
+
+                        <button type="submit">Terapkan</button>
+                        <a href="{% url 'social_media' %}" class="filter-reset">Reset</a>
+                    </form>
+                </div>
+
+                <!-- ===== 1. KPI CARDS ===== -->
+                <div class="section">
+                    <div class="kpi-row">
+                        <div class="kpi-card">
+                            <div class="kpi-label">Total Postingan</div>
+                            <div class="kpi-value">{{ total_posts }}</div>
+                        </div>
+                        <div class="kpi-card kpi-positif">
+                            <div class="kpi-label">Sentimen Positif</div>
+                            <div class="kpi-value">{{ total_positif }}</div>
+                        </div>
+                        <div class="kpi-card kpi-negatif">
+                            <div class="kpi-label">Sentimen Negatif</div>
+                            <div class="kpi-value">{{ total_negatif }}</div>
+                        </div>
+                        <div class="kpi-card">
+                            <div class="kpi-label">Total Engagement</div>
+                            <div class="kpi-value">{{ total_engagement }}</div>
+                        </div>
+                        <div class="kpi-card">
+                            <div class="kpi-label">Rata-rata Engagement</div>
+                            <div class="kpi-value">{{ avg_engagement }}</div>
+                        </div>
                     </div>
+                </div>
+
+                <!-- ===== 2. ALERTS ===== -->
+                <div class="section">
+                    <div class="section-title">&#128276; Monitoring Alert</div>
+                    {% if alerts %}
+                        {% for alert in alerts %}
+                        <div class="alert-box alert-warning">&#9888; {{ alert.message }}</div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="alert-box alert-empty">&#10003; Tidak ada alert penting pada periode ini.</div>
                     {% endif %}
-                {% else %}
-                    <div class="empty-state">Tidak ada post untuk filter ini.</div>
-                {% endif %}
+                </div>
+
+                <!-- ===== 3. SENTIMENT OVERVIEW + TREND ===== -->
+                <div class="section">
+                    <div class="section-title">Sentimen &amp; Tren</div>
+                    <div class="two-col">
+                        <div class="card">
+                            <div class="section-subtitle" style="margin-top:0;">Distribusi Sentimen</div>
+                            <div class="chart-box-sm"><canvas id="sentimentDonut"></canvas></div>
+                            <div class="legend-list">
+                                <div class="legend-item"><span class="legend-dot" style="background:#3B6D11;"></span>Positif — {{ total_positif }} post</div>
+                                <div class="legend-item"><span class="legend-dot" style="background:#B3261E;"></span>Negatif — {{ total_negatif }} post</div>
+                            </div>
+                        </div>
+                        <div class="card">
+                            <div class="section-subtitle" style="margin-top:0;">Tren Sentimen Harian</div>
+                            <div class="chart-box-md"><canvas id="trendChart"></canvas></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ===== 4. PLATFORM COMPARISON ===== -->
+                <div class="section">
+                    <div class="section-title">Perbandingan Platform</div>
+                    <div class="card">
+                        <div class="platform-compare-row">
+                            <div class="platform-compare-card">
+                                <div class="platform-compare-header">&#128248; Instagram</div>
+                                <div class="platform-compare-stat"><span>Total Post</span><strong>{{ platform_stats.instagram.total }}</strong></div>
+                                <div class="platform-compare-stat"><span>Positif</span><strong>{{ platform_stats.instagram.positif }}</strong></div>
+                                <div class="platform-compare-stat"><span>Negatif</span><strong>{{ platform_stats.instagram.negatif }}</strong></div>
+                                <div class="platform-compare-stat"><span>Likes</span><strong>{{ platform_stats.instagram.likes }}</strong></div>
+                                <div class="platform-compare-stat"><span>Comments</span><strong>{{ platform_stats.instagram.comments }}</strong></div>
+                                <div class="platform-compare-stat"><span>Engagement</span><strong>{{ platform_stats.instagram.engagement }}</strong></div>
+                            </div>
+                            <div class="platform-compare-card">
+                                <div class="platform-compare-header">&#127925; TikTok</div>
+                                <div class="platform-compare-stat"><span>Total Post</span><strong>{{ platform_stats.tiktok.total }}</strong></div>
+                                <div class="platform-compare-stat"><span>Positif</span><strong>{{ platform_stats.tiktok.positif }}</strong></div>
+                                <div class="platform-compare-stat"><span>Negatif</span><strong>{{ platform_stats.tiktok.negatif }}</strong></div>
+                                <div class="platform-compare-stat"><span>Likes</span><strong>{{ platform_stats.tiktok.likes }}</strong></div>
+                                <div class="platform-compare-stat"><span>Comments</span><strong>{{ platform_stats.tiktok.comments }}</strong></div>
+                                <div class="platform-compare-stat"><span>Engagement</span><strong>{{ platform_stats.tiktok.engagement }}</strong></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ===== 5. TOPIC & ISSUE ANALYSIS ===== -->
+                <div class="section">
+                    <div class="section-title">Analisis Topik &amp; Isu</div>
+                    <div class="two-col">
+                        <div class="card">
+                            <div class="section-subtitle" style="margin-top:0;">Distribusi Topik</div>
+                            <table class="data-table">
+                                <thead><tr><th>Topik</th><th>Jumlah</th><th>Negatif</th><th>Engagement</th></tr></thead>
+                                <tbody>
+                                    {% for t in topic_stats %}
+                                    <tr>
+                                        <td>{{ t.name }}</td>
+                                        <td>{{ t.total }}</td>
+                                        <td>{{ t.negatif }}</td>
+                                        <td>{{ t.engagement }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="card">
+                            <div class="section-subtitle" style="margin-top:0;">Top Issues (isu paling menonjol)</div>
+                            {% if top_issues %}
+                                {% for issue in top_issues %}
+                                <div style="padding: 10px 0; border-bottom: 1px solid #F0EFE9;">
+                                    <div style="font-size: 13px; font-weight: 500;">{{ issue.name }}</div>
+                                    <div style="font-size: 12px; color: #9B9990;">{{ issue.negatif }} postingan negatif &middot; {{ issue.engagement }} engagement</div>
+                                </div>
+                                {% endfor %}
+                            {% else %}
+                                <p style="font-size: 13px; color: #9B9990;">Tidak ada isu negatif menonjol pada periode ini.</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ===== 6. ENGAGEMENT ANALYSIS ===== -->
+                <div class="section">
+                    <div class="section-title">Analisis Engagement</div>
+                    <div class="two-col">
+                        <div class="card">
+                            <div class="section-subtitle" style="margin-top:0;">Top Postingan (Engagement Tertinggi)</div>
+                            {% for p in top_posts_engagement %}
+                            <div style="padding: 8px 0; border-bottom: 1px solid #F0EFE9; font-size: 12px;">
+                                <strong>@{{ p.username }}</strong> ({{ p.get_platform_display }}) — {{ p.engagement }} engagement
+                            </div>
+                            {% empty %}
+                            <p style="font-size: 13px; color: #9B9990;">Belum ada data.</p>
+                            {% endfor %}
+                        </div>
+                        <div class="card">
+                            <div class="section-subtitle" style="margin-top:0;">Top Negatif (Engagement Tertinggi)</div>
+                            {% for p in top_negatif_posts %}
+                            <div style="padding: 8px 0; border-bottom: 1px solid #F0EFE9; font-size: 12px;">
+                                <strong>@{{ p.username }}</strong> ({{ p.get_platform_display }}) — {{ p.engagement }} engagement
+                            </div>
+                            {% empty %}
+                            <p style="font-size: 13px; color: #9B9990;">Tidak ada postingan negatif.</p>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ===== 7. TOP ACCOUNTS ===== -->
+                <div class="section">
+                    <div class="section-title">Akun dengan Engagement Tertinggi</div>
+                    <div class="card">
+                        <table class="data-table">
+                            <thead><tr><th>Akun</th><th>Platform</th><th>Jumlah Post</th><th>Total Engagement</th><th>Sentimen Dominan</th></tr></thead>
+                            <tbody>
+                                {% for acc in top_accounts %}
+                                <tr>
+                                    <td>@{{ acc.username }}</td>
+                                    <td>{{ acc.platform|title }}</td>
+                                    <td>{{ acc.total }}</td>
+                                    <td>{{ acc.engagement }}</td>
+                                    <td><span class="badge badge-{{ acc.dominan }}">{{ acc.dominan|title }}</span></td>
+                                </tr>
+                                {% empty %}
+                                <tr><td colspan="5" style="text-align:center; color:#9B9990;">Belum ada data.</td></tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- ===== 8. KEYWORD ANALYSIS ===== -->
+                <div class="section">
+                    <div class="section-title">Analisis Kata Kunci</div>
+                    <div class="card">
+                        <div class="section-subtitle" style="margin-top:0;">Kata Kunci Terpopuler</div>
+                        <div class="keyword-cloud" style="margin-bottom: 16px;">
+                            {% for word, count in top_keywords %}
+                            <span class="keyword-tag">{{ word }}<span class="count">{{ count }}</span></span>
+                            {% empty %}
+                            <span style="font-size: 13px; color: #9B9990;">Belum ada data.</span>
+                            {% endfor %}
+                        </div>
+                        <div class="two-col">
+                            <div>
+                                <div class="section-subtitle" style="margin-top:0;">Kata Kunci pada Postingan Positif</div>
+                                <div class="keyword-cloud">
+                                    {% for word, count in keywords_positif %}
+                                    <span class="keyword-tag" style="background:#EAF3DE; color:#3B6D11;">{{ word }}<span class="count">{{ count }}</span></span>
+                                    {% empty %}<span style="font-size: 12px; color: #9B9990;">-</span>{% endfor %}
+                                </div>
+                            </div>
+                            <div>
+                                <div class="section-subtitle" style="margin-top:0;">Kata Kunci pada Postingan Negatif</div>
+                                <div class="keyword-cloud">
+                                    {% for word, count in keywords_negatif %}
+                                    <span class="keyword-tag" style="background:#FDECEA; color:#B3261E;">{{ word }}<span class="count">{{ count }}</span></span>
+                                    {% empty %}<span style="font-size: 12px; color: #9B9990;">-</span>{% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ===== 9. SOCIAL MEDIA POSTS ===== -->
+                <div class="section">
+                    <div class="section-title">Daftar Postingan ({{ total_posts }})</div>
+                    {% if posts %}
+                        {% for post in posts %}
+                        <div class="post-card">
+                            <div class="post-header">
+                                <div class="post-header-left">
+                                    <span class="post-platform platform-{{ post.platform }}">{{ post.get_platform_display }}</span>
+                                    <span class="post-username">@{{ post.username }}</span>
+                                </div>
+                                <div class="post-badges">
+                                    {% if post.priority %}
+                                    <span class="badge badge-{{ post.priority|lower }}">{{ post.priority }}</span>
+                                    {% endif %}
+                                    <span class="badge badge-{{ post.sentiment }}">{{ post.get_sentiment_display }}</span>
+                                </div>
+                            </div>
+                            <div class="post-caption">{{ post.caption }}</div>
+                            <div class="post-topics">
+                                {% for t in post.topics %}
+                                <span class="badge badge-topic">{{ t }}</span>
+                                {% endfor %}
+                            </div>
+                            <div class="post-meta">
+                                <span>&#10084; {{ post.likes_count }}</span>
+                                <span>&#128172; {{ post.comments_count }}</span>
+                                <span>&#128200; {{ post.engagement }} engagement</span>
+                                <span>{{ post.posted_date|date:"d M Y" }}</span>
+                                {% if post.post_url %}
+                                <a href="{{ post.post_url }}" target="_blank" class="post-source-link">Lihat Postingan &#8599;</a>
+                                {% else %}
+                                <span style="color:#C0BEB6;">Sumber tidak tersedia (data simulasi)</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endfor %}
+
+                        {% if posts.has_other_pages %}
+                        <div style="display: flex; justify-content: center; align-items: center; gap: 10px; margin-top: 16px;">
+                            {% if posts.has_previous %}
+                            <a href="?period={{ period_aktif }}&platform={{ platform_aktif }}&sentiment={{ sentiment_aktif }}&topic={{ topic_aktif }}&priority={{ priority_aktif }}&page={{ posts.previous_page_number }}" style="font-size: 13px; color: #1B5FAA; text-decoration: none; padding: 6px 12px; border: 1px solid #E5E3DC; border-radius: 6px;">&larr; Sebelumnya</a>
+                            {% endif %}
+                            <span style="font-size: 13px; color: #6B6B6B;">Halaman {{ posts.number }} dari {{ posts.paginator.num_pages }}</span>
+                            {% if posts.has_next %}
+                            <a href="?period={{ period_aktif }}&platform={{ platform_aktif }}&sentiment={{ sentiment_aktif }}&topic={{ topic_aktif }}&priority={{ priority_aktif }}&page={{ posts.next_page_number }}" style="font-size: 13px; color: #1B5FAA; text-decoration: none; padding: 6px 12px; border: 1px solid #E5E3DC; border-radius: 6px;">Selanjutnya &rarr;</a>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+                    {% else %}
+                        <div class="empty-state">Tidak ada postingan untuk filter ini.</div>
+                    {% endif %}
+                </div>
+
             </div>
         </div>
     </div>
 
     <script>
-    function toggleAnalisisMenu() {
-        document.getElementById('analisisSubmenu').classList.toggle('open');
-        document.getElementById('analisisChevron').classList.toggle('open');
-    }
+        new Chart(document.getElementById('sentimentDonut').getContext('2d'), {
+            type: 'doughnut',
+            data: {
+                labels: ['Positif', 'Negatif'],
+                datasets: [{
+                    data: [{{ total_positif }}, {{ total_negatif }}],
+                    backgroundColor: ['#3B6D11', '#B3261E'],
+                    borderWidth: 0,
+                }]
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false, cutout: '65%',
+                plugins: { legend: { display: false } }
+            }
+        });
 
-    document.addEventListener('DOMContentLoaded', function () {
-        const currentUrl = "{{ request.resolver_match.url_name }}";
-        if (currentUrl === 'analisis' || currentUrl === 'social_media') {
-            document.getElementById('analisisSubmenu').classList.add('open');
-            document.getElementById('analisisChevron').classList.add('open');
-        }
-    });
+        new Chart(document.getElementById('trendChart').getContext('2d'), {
+            type: 'line',
+            data: {
+                labels: {{ trend_labels|safe }},
+                datasets: [
+                    { label: 'Positif', data: {{ trend_positif|safe }}, borderColor: '#3B6D11', backgroundColor: 'rgba(59,109,17,0.1)', tension: 0.3, fill: true },
+                    { label: 'Negatif', data: {{ trend_negatif|safe }}, borderColor: '#B3261E', backgroundColor: 'rgba(179,38,30,0.1)', tension: 0.3, fill: true }
+                ]
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                plugins: { legend: { display: true, position: 'bottom', labels: { boxWidth: 10, font: { size: 11 } } } },
+                scales: { y: { beginAtZero: true, ticks: { stepSize: 1, font: { size: 10 } } }, x: { ticks: { font: { size: 10 } } } }
+            }
+        });
     </script>
 </body>
 </html>
