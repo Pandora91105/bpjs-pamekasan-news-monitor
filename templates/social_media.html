@@ -536,7 +536,7 @@
             container.innerHTML = '<div class="posts-grid">' + posts.map(function (post) {
                 const topicsHtml = post.topics.map(function (t) {
                     return '<span class="badge badge-topic">' + t + '</span>';
-                }).join('') + '</div>';
+                }).join('');
 
                 const sourceLink = post.post_url
                     ? '<a href="' + post.post_url + '" target="_blank" class="post-source-link">Lihat Postingan &#8599;</a>'
@@ -585,7 +585,7 @@
             container.innerHTML = '<div class="posts-grid">' + posts.map(function (post) {
                 const topicsHtml = post.topics.map(function (t) {
                     return '<span class="badge badge-topic">' + t + '</span>';
-                }).join('') + '</div>';
+                }).join('');
 
                 const sourceLink = post.post_url
                     ? '<a href="' + post.post_url + '" target="_blank" class="post-source-link">Lihat Postingan &#8599;</a>'
