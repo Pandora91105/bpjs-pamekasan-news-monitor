@@ -109,6 +109,8 @@
         .alert-empty { background: #EAF3DE; border: 1px solid #B7D89B; color: #3B6D11; }
 
         /* ===== POST CARD ===== */
+        .posts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+        .posts-grid .post-card { margin-bottom: 0; }
         .post-card { background: #FFFFFF; border: 1px solid #E5E3DC; border-radius: 10px; padding: 16px; margin-bottom: 12px; }
         .post-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; flex-wrap: wrap; gap: 6px; }
         .post-header-left { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
@@ -429,39 +431,41 @@
                 <div class="section">
                     <div class="section-title">Daftar Postingan ({{ total_posts }})</div>
                     {% if posts %}
-                        {% for post in posts %}
-                        <div class="post-card">
-                            <div class="post-header">
-                                <div class="post-header-left">
-                                    <span class="post-platform platform-{{ post.platform }}">{{ post.get_platform_display }}</span>
-                                    <span class="post-username">@{{ post.username }}</span>
+                        <div class="posts-grid">
+                            {% for post in posts %}
+                            <div class="post-card">
+                                <div class="post-header">
+                                    <div class="post-header-left">
+                                        <span class="post-platform platform-{{ post.platform }}">{{ post.get_platform_display }}</span>
+                                        <span class="post-username">@{{ post.username }}</span>
+                                    </div>
+                                    <div class="post-badges">
+                                        {% if post.priority %}
+                                        <span class="badge badge-{{ post.priority|lower }}">{{ post.priority }}</span>
+                                        {% endif %}
+                                        <span class="badge badge-{{ post.sentiment }}">{{ post.get_sentiment_display }}</span>
+                                    </div>
                                 </div>
-                                <div class="post-badges">
-                                    {% if post.priority %}
-                                    <span class="badge badge-{{ post.priority|lower }}">{{ post.priority }}</span>
+                                <div class="post-caption">{{ post.caption }}</div>
+                                <div class="post-topics">
+                                    {% for t in post.topics %}
+                                    <span class="badge badge-topic">{{ t }}</span>
+                                    {% endfor %}
+                                </div>
+                                <div class="post-meta">
+                                    <span>&#10084; {{ post.likes_count }}</span>
+                                    <span>&#128172; {{ post.comments_count }}</span>
+                                    <span>&#128200; {{ post.engagement }} engagement</span>
+                                    <span>{{ post.posted_date|date:"d M Y" }}</span>
+                                    {% if post.post_url %}
+                                    <a href="{{ post.post_url }}" target="_blank" class="post-source-link">Lihat Postingan &#8599;</a>
+                                    {% else %}
+                                    <span style="color:#C0BEB6;">Sumber tidak tersedia (data simulasi)</span>
                                     {% endif %}
-                                    <span class="badge badge-{{ post.sentiment }}">{{ post.get_sentiment_display }}</span>
                                 </div>
                             </div>
-                            <div class="post-caption">{{ post.caption }}</div>
-                            <div class="post-topics">
-                                {% for t in post.topics %}
-                                <span class="badge badge-topic">{{ t }}</span>
-                                {% endfor %}
-                            </div>
-                            <div class="post-meta">
-                                <span>&#10084; {{ post.likes_count }}</span>
-                                <span>&#128172; {{ post.comments_count }}</span>
-                                <span>&#128200; {{ post.engagement }} engagement</span>
-                                <span>{{ post.posted_date|date:"d M Y" }}</span>
-                                {% if post.post_url %}
-                                <a href="{{ post.post_url }}" target="_blank" class="post-source-link">Lihat Postingan &#8599;</a>
-                                {% else %}
-                                <span style="color:#C0BEB6;">Sumber tidak tersedia (data simulasi)</span>
-                                {% endif %}
-                            </div>
+                            {% endfor %}
                         </div>
-                        {% endfor %}
 
                         {% if posts.has_other_pages %}
                         <div style="display: flex; justify-content: center; align-items: center; gap: 10px; margin-top: 16px;">
@@ -529,10 +533,10 @@
         if (posts.length === 0) {
             container.innerHTML = '<div class="empty-state">Tidak ada postingan untuk akun ini.</div>';
         } else {
-            container.innerHTML = posts.map(function (post) {
+            container.innerHTML = '<div class="posts-grid">' + posts.map(function (post) {
                 const topicsHtml = post.topics.map(function (t) {
                     return '<span class="badge badge-topic">' + t + '</span>';
-                }).join('');
+                }).join('') + '</div>';
 
                 const sourceLink = post.post_url
                     ? '<a href="' + post.post_url + '" target="_blank" class="post-source-link">Lihat Postingan &#8599;</a>'
@@ -578,10 +582,10 @@
         if (posts.length === 0) {
             container.innerHTML = '<div class="empty-state">Tidak ada postingan dengan kata kunci ini.</div>';
         } else {
-            container.innerHTML = posts.map(function (post) {
+            container.innerHTML = '<div class="posts-grid">' + posts.map(function (post) {
                 const topicsHtml = post.topics.map(function (t) {
                     return '<span class="badge badge-topic">' + t + '</span>';
-                }).join('');
+                }).join('') + '</div>';
 
                 const sourceLink = post.post_url
                     ? '<a href="' + post.post_url + '" target="_blank" class="post-source-link">Lihat Postingan &#8599;</a>'
