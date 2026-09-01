@@ -340,6 +340,7 @@
                 }
             }
         });
+            
 
         const trendCtx = document.getElementById('trendChart').getContext('2d');
         new Chart(trendCtx, {
@@ -400,6 +401,8 @@
                 });
             }
         });
+
+    
 
         document.addEventListener('click', function (e) {
             if (!dropdown.contains(e.target) && e.target !== bell) {

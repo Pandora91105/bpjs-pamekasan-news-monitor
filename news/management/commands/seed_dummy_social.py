@@ -72,6 +72,7 @@ DUMMY_POSTS = [
     ('tiktok', 'suaramasyarakat_md', 'Kartu BPJS saya hilang, urus penggantian di Pamekasan ternyata cepat dan gak ribet kok', 'positif', 2134, 167),
     ('instagram', 'reportase_pmk', 'Petugas BPJS Kesehatan Pamekasan kurang informatif saat saya tanya soal prosedur klaim', 'negatif', 178, 45),
     ('tiktok', 'faktamadura_id', 'BPJS Kesehatan Pamekasan diduga lambat proses verifikasi berkas peserta baru, banyak keluhan warganet', 'negatif', 3123, 567),
+    
 ]
 
 
@@ -81,7 +82,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         created_count = 0
         now = timezone.now()
-
+          
         for platform, username, caption, sentiment, likes, comments in DUMMY_POSTS:
             # Sebaran tanggal lebih rapat: mayoritas dalam 45 hari terakhir,
             # supaya filter default "30 hari terakhir" selalu punya data yang cukup.

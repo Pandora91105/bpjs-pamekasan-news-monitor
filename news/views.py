@@ -56,8 +56,9 @@ class DashboardView(LoginRequiredMixin, TemplateView):
         return context
 
 
-
     
+
+
 
 
 class AnalisisView(LoginRequiredMixin, TemplateView):
@@ -410,6 +411,24 @@ class SocialMediaView(LoginRequiredMixin, TemplateView):
         for acc in top_accounts:
             acc['dominan'] = 'positif' if acc['positif'] >= acc['negatif'] else 'negatif'
         context['top_accounts'] = top_accounts
+
+        # ---------- 11b. Data lengkap semua post (untuk detail akun via JS) ----------
+        all_posts_data = []
+        for p in all_posts:
+            all_posts_data.append({
+                'username': p.username,
+                'platform_display': p.get_platform_display(),
+                'caption': p.caption,
+                'sentiment': p.sentiment,
+                'sentiment_display': p.get_sentiment_display(),
+                'likes': p.likes_count,
+                'comments': p.comments_count,
+                'engagement': p.engagement,
+                'posted_date': p.posted_date.strftime('%d %b %Y'),
+                'post_url': p.post_url if p.post_url else '',
+                'topics': p.topics,
+            })
+        context['all_posts_data'] = all_posts_data
 
         # ---------- 12. Keyword Analysis ----------
         context['top_keywords'] = extract_keywords(all_posts, 10)

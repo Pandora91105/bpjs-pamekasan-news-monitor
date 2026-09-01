@@ -15,6 +15,9 @@
         .sidebar a.inactive { color: #D9F0E3; }
         .sidebar a:hover { background: rgba(255,255,255,0.1); }
 
+        .account-link { cursor: pointer; color: #1B5FAA; }
+        .account-link:hover { text-decoration: underline; }
+
         .main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
 
         .header { background: #FFFFFF; border-bottom: 1px solid #E5E3DC; padding: 14px 24px; display: flex; align-items: center; justify-content: space-between; }
@@ -97,11 +100,11 @@
 
         /* ===== KEYWORD TAGS ===== */
         .keyword-cloud { display: flex; flex-wrap: wrap; gap: 8px; }
-        .keyword-tag { font-size: 12px; padding: 5px 12px; border-radius: 20px; background: #F0EFE9; color: #333; }
-        .keyword-tag .count { color: #9B9990; margin-left: 4px; }
+        .keyword-tag { font-size: 12px; padding: 5px 12px; border-radius: 20px; background: #F0EFE9; color: #333; cursor: pointer; transition: transform 0.15s ease; }
+        .keyword-tag:hover { transform: translateY(-2px); box-shadow: 0 2px 6px rgba(0,0,0,0.08); }
 
         /* ===== ALERTS ===== */
-        .alert-box { display: flex; align-items: flex-start; gap: 10px; padding: 12px 14px; border-radius: 10px; margin-bottom: 10px; font-size: 13px; }
+        .alert-box { display: flex; align-items: flex-start; gap: 10px; padding: 1  px 14px; border-radius: 10px; margin-bottom: 10px; font-size: 13px; }
         .alert-warning { background: #FFF4E5; border: 1px solid #F0C674; color: #7A5A00; }
         .alert-empty { background: #EAF3DE; border: 1px solid #B7D89B; color: #3B6D11; }
 
@@ -318,7 +321,7 @@
                     </div>
                 </div>
 
-                <!-- ===== 6. ENGAGEMENT ANALYSIS ===== -->
+               <!-- ===== 6. ENGAGEMENT ANALYSIS ===== -->
                 <div class="section">
                     <div class="section-title">Analisis Engagement</div>
                     <div class="two-col">
@@ -326,7 +329,7 @@
                             <div class="section-subtitle" style="margin-top:0;">Top Postingan (Engagement Tertinggi)</div>
                             {% for p in top_posts_engagement %}
                             <div style="padding: 8px 0; border-bottom: 1px solid #F0EFE9; font-size: 12px;">
-                                <strong>@{{ p.username }}</strong> ({{ p.get_platform_display }}) — {{ p.engagement }} engagement
+                                <strong class="account-link" onclick="showAccountPosts('{{ p.username|escapejs }}')">@{{ p.username }}</strong> ({{ p.get_platform_display }}) — {{ p.engagement }} engagement
                             </div>
                             {% empty %}
                             <p style="font-size: 13px; color: #9B9990;">Belum ada data.</p>
@@ -336,13 +339,22 @@
                             <div class="section-subtitle" style="margin-top:0;">Top Negatif (Engagement Tertinggi)</div>
                             {% for p in top_negatif_posts %}
                             <div style="padding: 8px 0; border-bottom: 1px solid #F0EFE9; font-size: 12px;">
-                                <strong>@{{ p.username }}</strong> ({{ p.get_platform_display }}) — {{ p.engagement }} engagement
+                                <strong class="account-link" onclick="showAccountPosts('{{ p.username|escapejs }}')">@{{ p.username }}</strong> ({{ p.get_platform_display }}) — {{ p.engagement }} engagement
                             </div>
                             {% empty %}
                             <p style="font-size: 13px; color: #9B9990;">Tidak ada postingan negatif.</p>
                             {% endfor %}
                         </div>
                     </div>
+                </div>
+
+                <!-- ===== 6b. DETAIL POSTINGAN PER AKUN ===== -->
+                <div class="section" id="accountDetailSection" style="display:none;">
+                    <div class="section-title">
+                        &#128100; Postingan dari <span id="accountDetailName" style="color:#00A651;"></span>
+                        <span onclick="closeAccountDetail()" style="margin-left:auto; font-size:12px; color:#9B9990; cursor:pointer; font-weight:400;">&#10005; Tutup</span>
+                    </div>
+                    <div id="accountDetailPosts"></div>
                 </div>
 
                 <!-- ===== 7. TOP ACCOUNTS ===== -->
@@ -374,8 +386,9 @@
                     <div class="card">
                         <div class="section-subtitle" style="margin-top:0;">Kata Kunci Terpopuler</div>
                         <div class="keyword-cloud" style="margin-bottom: 16px;">
+                            <!-- Kata Kunci Terpopuler -->
                             {% for word, count in top_keywords %}
-                            <span class="keyword-tag">{{ word }}<span class="count">{{ count }}</span></span>
+                            <span class="keyword-tag" onclick="showKeywordPosts('{{ word|escapejs }}')">{{ word }}<span class="count">{{ count }}</span></span>
                             {% empty %}
                             <span style="font-size: 13px; color: #9B9990;">Belum ada data.</span>
                             {% endfor %}
@@ -384,21 +397,32 @@
                             <div>
                                 <div class="section-subtitle" style="margin-top:0;">Kata Kunci pada Postingan Positif</div>
                                 <div class="keyword-cloud">
+                                    <!-- Kata Kunci pada Postingan Positif -->
                                     {% for word, count in keywords_positif %}
-                                    <span class="keyword-tag" style="background:#EAF3DE; color:#3B6D11;">{{ word }}<span class="count">{{ count }}</span></span>
+                                    <span class="keyword-tag" style="background:#EAF3DE; color:#3B6D11;" onclick="showKeywordPosts('{{ word|escapejs }}')">{{ word }}<span class="count">{{ count }}</span></span>
                                     {% empty %}<span style="font-size: 12px; color: #9B9990;">-</span>{% endfor %}
                                 </div>
                             </div>
                             <div>
                                 <div class="section-subtitle" style="margin-top:0;">Kata Kunci pada Postingan Negatif</div>
                                 <div class="keyword-cloud">
+                                    <!-- Kata Kunci pada Postingan Negatif -->
                                     {% for word, count in keywords_negatif %}
-                                    <span class="keyword-tag" style="background:#FDECEA; color:#B3261E;">{{ word }}<span class="count">{{ count }}</span></span>
+                                    <span class="keyword-tag" style="background:#FDECEA; color:#B3261E;" onclick="showKeywordPosts('{{ word|escapejs }}')">{{ word }}<span class="count">{{ count }}</span></span>
                                     {% empty %}<span style="font-size: 12px; color: #9B9990;">-</span>{% endfor %}
                                 </div>
                             </div>
                         </div>
                     </div>
+                </div>
+
+                <!-- ===== 8b. DETAIL POSTINGAN PER KATA KUNCI ===== -->
+                <div class="section" id="keywordDetailSection" style="display:none;">
+                    <div class="section-title">
+                        &#128269; Postingan dengan kata kunci "<span id="keywordDetailName" style="color:#00A651;"></span>"
+                        <span onclick="closeKeywordDetail()" style="margin-left:auto; font-size:12px; color:#9B9990; cursor:pointer; font-weight:400;">&#10005; Tutup</span>
+                    </div>
+                    <div id="keywordDetailPosts"></div>
                 </div>
 
                 <!-- ===== 9. SOCIAL MEDIA POSTS ===== -->
@@ -458,7 +482,7 @@
             </div>
         </div>
     </div>
-
+    {{ all_posts_data|json_script:"all-posts-data" }}
     <script>
         new Chart(document.getElementById('sentimentDonut').getContext('2d'), {
             type: 'doughnut',
@@ -491,6 +515,106 @@
                 scales: { y: { beginAtZero: true, ticks: { stepSize: 1, font: { size: 10 } } }, x: { ticks: { font: { size: 10 } } } }
             }
         });
+    </script>
+    <script>
+    const allPostsData = JSON.parse(document.getElementById('all-posts-data').textContent);
+
+    function showAccountPosts(username) {
+        const posts = allPostsData.filter(p => p.username === username);
+        const container = document.getElementById('accountDetailPosts');
+        const section = document.getElementById('accountDetailSection');
+
+        document.getElementById('accountDetailName').textContent = '@' + username;
+
+        if (posts.length === 0) {
+            container.innerHTML = '<div class="empty-state">Tidak ada postingan untuk akun ini.</div>';
+        } else {
+            container.innerHTML = posts.map(function (post) {
+                const topicsHtml = post.topics.map(function (t) {
+                    return '<span class="badge badge-topic">' + t + '</span>';
+                }).join('');
+
+                const sourceLink = post.post_url
+                    ? '<a href="' + post.post_url + '" target="_blank" class="post-source-link">Lihat Postingan &#8599;</a>'
+                    : '<span style="color:#C0BEB6;">Sumber tidak tersedia (data simulasi)</span>';
+
+                return '<div class="post-card">' +
+                    '<div class="post-header">' +
+                        '<div class="post-header-left">' +
+                            '<span class="post-platform platform-' + (post.platform_display === 'TikTok' ? 'tiktok' : 'instagram') + '">' + post.platform_display + '</span>' +
+                            '<span class="post-username">@' + post.username + '</span>' +
+                        '</div>' +
+                        '<span class="badge badge-' + post.sentiment + '">' + post.sentiment_display + '</span>' +
+                    '</div>' +
+                    '<div class="post-caption">' + post.caption + '</div>' +
+                    '<div class="post-topics">' + topicsHtml + '</div>' +
+                    '<div class="post-meta">' +
+                        '<span>&#10084; ' + post.likes + '</span>' +
+                        '<span>&#128172; ' + post.comments + '</span>' +
+                        '<span>&#128200; ' + post.engagement + ' engagement</span>' +
+                        '<span>' + post.posted_date + '</span>' +
+                        sourceLink +
+                    '</div>' +
+                '</div>';
+            }).join('');
+        }
+
+        section.style.display = 'block';
+        section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function closeAccountDetail() {
+        document.getElementById('accountDetailSection').style.display = 'none';
+    }
+
+    function showKeywordPosts(keyword) {
+    const lowerKeyword = keyword.toLowerCase();
+    const posts = allPostsData.filter(p => p.caption.toLowerCase().includes(lowerKeyword));
+    const container = document.getElementById('keywordDetailPosts');
+    const section = document.getElementById('keywordDetailSection');
+
+    document.getElementById('keywordDetailName').textContent = keyword;
+
+        if (posts.length === 0) {
+            container.innerHTML = '<div class="empty-state">Tidak ada postingan dengan kata kunci ini.</div>';
+        } else {
+            container.innerHTML = posts.map(function (post) {
+                const topicsHtml = post.topics.map(function (t) {
+                    return '<span class="badge badge-topic">' + t + '</span>';
+                }).join('');
+
+                const sourceLink = post.post_url
+                    ? '<a href="' + post.post_url + '" target="_blank" class="post-source-link">Lihat Postingan &#8599;</a>'
+                    : '<span style="color:#C0BEB6;">Sumber tidak tersedia (data simulasi)</span>';
+
+                return '<div class="post-card">' +
+                    '<div class="post-header">' +
+                        '<div class="post-header-left">' +
+                            '<span class="post-platform platform-' + (post.platform_display === 'TikTok' ? 'tiktok' : 'instagram') + '">' + post.platform_display + '</span>' +
+                            '<span class="post-username">@' + post.username + '</span>' +
+                        '</div>' +
+                        '<span class="badge badge-' + post.sentiment + '">' + post.sentiment_display + '</span>' +
+                    '</div>' +
+                    '<div class="post-caption">' + post.caption + '</div>' +
+                    '<div class="post-topics">' + topicsHtml + '</div>' +
+                    '<div class="post-meta">' +
+                        '<span>&#10084; ' + post.likes + '</span>' +
+                        '<span>&#128172; ' + post.comments + '</span>' +
+                        '<span>&#128200; ' + post.engagement + ' engagement</span>' +
+                        '<span>' + post.posted_date + '</span>' +
+                        sourceLink +
+                    '</div>' +
+                '</div>';
+            }).join('');
+        }
+
+        section.style.display = 'block';
+        section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function closeKeywordDetail() {
+        document.getElementById('keywordDetailSection').style.display = 'none';
+    }
     </script>
 </body>
 </html>
