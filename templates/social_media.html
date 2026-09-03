@@ -60,6 +60,8 @@
         /* ===== KPI CARDS ===== */
         .kpi-row { display: flex; gap: 14px; flex-wrap: wrap; }
         .kpi-card { flex: 1; min-width: 150px; background: #FFFFFF; border: 1px solid #E5E3DC; border-radius: 12px; padding: 18px; }
+        .kpi-clickable { cursor: pointer; transition: transform 0.15s ease; }
+        .kpi-clickable:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
         .kpi-label { font-size: 12px; color: #6B6B6B; margin-bottom: 8px; }
         .kpi-value { font-size: 26px; font-weight: 700; }
         .kpi-positif .kpi-value { color: #3B6D11; }
@@ -235,11 +237,11 @@
                             <div class="kpi-label">Total Postingan</div>
                             <div class="kpi-value">{{ total_posts }}</div>
                         </div>
-                        <div class="kpi-card kpi-positif">
+                        <div class="kpi-card kpi-positif kpi-clickable" onclick="showSentimentPosts('positif')">
                             <div class="kpi-label">Sentimen Positif</div>
                             <div class="kpi-value">{{ total_positif }}</div>
                         </div>
-                        <div class="kpi-card kpi-negatif">
+                        <div class="kpi-card kpi-negatif kpi-clickable" onclick="showSentimentPosts('negatif')">
                             <div class="kpi-label">Sentimen Negatif</div>
                             <div class="kpi-value">{{ total_negatif }}</div>
                         </div>
@@ -252,6 +254,15 @@
                             <div class="kpi-value">{{ avg_engagement }}</div>
                         </div>
                     </div>
+                </div>
+
+                <!-- ===== 1b. DETAIL POSTINGAN PER SENTIMEN ===== -->
+                <div class="section" id="sentimentDetailSection" style="display:none;">
+                    <div class="section-title">
+                        &#128203; Postingan Sentimen <span id="sentimentDetailName" style="color:#00A651;"></span>
+                        <span onclick="closeSentimentDetail()" style="margin-left:auto; font-size:12px; color:#9B9990; cursor:pointer; font-weight:400;">&#10005; Tutup</span>
+                    </div>
+                    <div id="sentimentDetailPosts"></div>
                 </div>
 
                 <!-- ===== 2. ALERTS ===== -->
@@ -644,7 +655,57 @@
     function closeKeywordDetail() {
         document.getElementById('keywordDetailSection').style.display = 'none';
     }
+
+    function showSentimentPosts(sentiment) {
+    const posts = allPostsData.filter(p => p.sentiment === sentiment);
+    const container = document.getElementById('sentimentDetailPosts');
+    const section = document.getElementById('sentimentDetailSection');
+
+    document.getElementById('sentimentDetailName').textContent = sentiment === 'positif' ? 'Positif' : 'Negatif';
+
+    if (posts.length === 0) {
+        container.innerHTML = '<div class="empty-state">Tidak ada postingan untuk sentimen ini.</div>';
+    } else {
+        container.innerHTML = '<div class="posts-grid">' + posts.map(function (post) {
+            const topicsHtml = post.topics.map(function (t) {
+                return '<span class="badge badge-topic">' + t + '</span>';
+            }).join('');
+
+            const sourceLink = post.post_url
+                ? '<a href="' + post.post_url + '" target="_blank" class="post-source-link">Lihat Postingan &#8599;</a>'
+                : '<span style="color:#C0BEB6;">Sumber tidak tersedia (data simulasi)</span>';
+
+            return '<div class="post-card">' +
+                '<div class="post-header">' +
+                    '<div class="post-header-left">' +
+                        '<span class="post-platform platform-' + (post.platform_display === 'TikTok' ? 'tiktok' : 'instagram') + '">' + post.platform_display + '</span>' +
+                        '<span class="post-username">@' + post.username + '</span>' +
+                    '</div>' +
+                    '<span class="badge badge-' + post.sentiment + '">' + post.sentiment_display + '</span>' +
+                '</div>' +
+                '<div class="post-caption">' + post.caption + '</div>' +
+                '<div class="post-topics">' + topicsHtml + '</div>' +
+                '<div class="post-meta">' +
+                    '<span>&#10084; ' + post.likes + '</span>' +
+                    '<span>&#128172; ' + post.comments + '</span>' +
+                    '<span>&#128200; ' + post.engagement + ' engagement</span>' +
+                    '<span>' + post.posted_date + '</span>' +
+                    sourceLink +
+                '</div>' +
+            '</div>';
+        }).join('') + '</div>';
+    }
+
+    section.style.display = 'block';
+    section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function closeSentimentDetail() {
+        document.getElementById('sentimentDetailSection').style.display = 'none';
+    }
     </script>
+
+    
 
     <script>
     function toggleAnalisisMenu() {
