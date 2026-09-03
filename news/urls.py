@@ -11,3 +11,5 @@ urlpatterns = [
     path('notifikasi/mark-read/', views.MarkNotificationsReadView.as_view(), name='mark_notifications_read'),
     path('media-sosial/', views.SocialMediaView.as_view(), name='social_media'),
 ]
+
+

@@ -11,7 +11,7 @@
         .layout { display: flex; min-height: 100vh; }
 
         .sidebar { width: 180px; background: #00A651; flex-shrink: 0; padding: 20px 0; display: flex; flex-direction: column; gap: 4px; }
-        .sidebar a { display: flex; align-items: center; gap: 10px; padding: 10px 20px; color: #ffffff; text-decoration: none; font-size: 14px; }
+        .sidebar a { display: flex; align-items: center; gap: 10px; padding: 10px 20px; color: #ffffff; text-decoration: none; font-size: 17px; }
         .sidebar a.inactive { color: #D9F0E3; }
         .sidebar a:hover { background: rgba(255,255,255,0.1); }
 
@@ -537,7 +537,7 @@
                 const topicsHtml = post.topics.map(function (t) {
                     return '<span class="badge badge-topic">' + t + '</span>';
                 }).join('');
-
+            
                 const sourceLink = post.post_url
                     ? '<a href="' + post.post_url + '" target="_blank" class="post-source-link">Lihat Postingan &#8599;</a>'
                     : '<span style="color:#C0BEB6;">Sumber tidak tersedia (data simulasi)</span>';
